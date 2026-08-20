@@ -15,7 +15,7 @@ public class Monday {
                 + "____________________________________________________________";
         System.out.println(banner);
 
-        String[] list = new String[100];
+        Task[] list = new Task[100]; // previously this: String[] list = new String[100];
         int numberOfTasks = 0;
 
         String line = "____________________________________________________________";
@@ -24,22 +24,41 @@ public class Monday {
             String command = scanner.nextLine();
 
             System.out.println(line);
+
             if (command.equals("bye")) {
                 System.out.println("Bye. Hope to see you again soon!");
                 System.out.println(line);
                 break;
             }
+
             if (command.equals("list")) {
                 int i = 0;
                 int j = 1;
                 while (i < numberOfTasks) {
-                    System.out.println(j + ". " + list[i]);
+                    System.out.println(j + "." + list[i]);
                     j++;
                     i++;
                 }
                 continue;
             }
-            list[numberOfTasks] = command;
+
+            if (command.startsWith("mark ")) {
+                int index = Integer.parseInt(command.substring(5)) - 1; // extract the number after 'mark' and minus 1 because indices start from 0
+                // Do not need this anymore: String temp = list[index].substring(4);
+                list[index].markAsDone(); // previously this: list[index] = "[X] " + temp; // replace '[ ]' with '[X]'
+                System.out.println("Nice! I've marked this task as done:\n" + list[index]);
+                continue;
+            }
+
+            if (command.startsWith("unmark ")) {
+                int index = Integer.parseInt(command.substring(7)) - 1;
+                // Do not need this anymore: String temp = list[index].substring(4);
+                list[index].markAsNotDone(); // previously this: list[index] = "[ ] " + temp;
+                System.out.println("OK, I've marked this task as not done yet:\n" + list[index]);
+                continue;
+            }
+
+            list[numberOfTasks] = new Task(command); // previously this: "[ ] " + command;
             numberOfTasks++;
             System.out.println("added: " + command);
             System.out.println(line);
