@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 public class Monday {
+
     public static void main(String[] args) {
         String banner =
                 "____________________________________________________________\n"
@@ -14,6 +15,9 @@ public class Monday {
                 + "____________________________________________________________";
         System.out.println(banner);
 
+        String[] list = new String[100];
+        int numberOfTasks = 0;
+
         String line = "____________________________________________________________";
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -25,7 +29,19 @@ public class Monday {
                 System.out.println(line);
                 break;
             }
-            System.out.println(command);
+            if (command.equals("list")) {
+                int i = 0;
+                int j = 1;
+                while (i < numberOfTasks) {
+                    System.out.println(j + ". " + list[i]);
+                    j++;
+                    i++;
+                }
+                continue;
+            }
+            list[numberOfTasks] = command;
+            numberOfTasks++;
+            System.out.println("added: " + command);
             System.out.println(line);
         }
     }
