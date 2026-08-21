@@ -34,31 +34,66 @@ public class Monday {
             if (command.equals("list")) {
                 int i = 0;
                 int j = 1;
+                System.out.println("Here are the tasks in your list:");
                 while (i < numberOfTasks) {
                     System.out.println(j + "." + list[i]);
                     j++;
                     i++;
                 }
+                System.out.println(line);
                 continue;
             }
 
             if (command.startsWith("mark ")) {
-                int index = Integer.parseInt(command.substring(5)) - 1; // extract the number after 'mark' and minus 1 because indices start from 0
-                // Do not need this anymore: String temp = list[index].substring(4);
-                list[index].markAsDone(); // previously this: list[index] = "[X] " + temp; // replace '[ ]' with '[X]'
-                System.out.println("Nice! I've marked this task as done:\n" + list[index]);
+                int index = Integer.parseInt(command.substring(5)) - 1;
+                list[index].markAsDone();
+                System.out.println("Nice! I've marked this task as done:\n" + "  " + list[index]);
+                System.out.println(line);
                 continue;
             }
 
             if (command.startsWith("unmark ")) {
                 int index = Integer.parseInt(command.substring(7)) - 1;
-                // Do not need this anymore: String temp = list[index].substring(4);
-                list[index].markAsNotDone(); // previously this: list[index] = "[ ] " + temp;
-                System.out.println("OK, I've marked this task as not done yet:\n" + list[index]);
+                list[index].markAsNotDone();
+                System.out.println("OK, I've marked this task as not done yet:\n" + "  " + list[index]);
+                System.out.println(line);
                 continue;
             }
 
-            list[numberOfTasks] = new Task(command); // previously this: "[ ] " + command;
+            if (command.startsWith("todo ")) {
+                String task = command.substring(5);
+                list[numberOfTasks] = new Todo(task);
+                System.out.println("Got it. I've added this task:\n" + "  " + list[numberOfTasks]);
+                numberOfTasks++;
+                System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                System.out.println(line);
+                continue;
+            }
+
+            if (command.startsWith("deadline ")) {
+                String task = command.substring("deadline ".length(), command.indexOf("/by")).trim();
+                String deadline = command.substring(command.indexOf("/by") + "/by".length()).trim();
+                list[numberOfTasks] = new Deadline(task, deadline);
+                System.out.println("Got it. I've added this task:\n" + "  " + list[numberOfTasks]);
+                numberOfTasks++;
+                System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                System.out.println(line);
+                continue;
+            }
+
+            if (command.startsWith("event ")) {
+                String task = command.substring("event ".length(), command.indexOf("/from")).trim();
+                String timePeriod1 = command.substring(command.indexOf("/from") + "/from".length(),  command.indexOf("/to")).trim();
+                String timePeriod2 = command.substring(command.indexOf("/to") + "/to".length()).trim();
+                list[numberOfTasks] = new Event(task, timePeriod1, timePeriod2);
+                System.out.println("Got it. I've added this task:\n" +  "  " + list[numberOfTasks]);
+                numberOfTasks++;
+                System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                System.out.println(line);
+                continue;
+            }
+
+            list[numberOfTasks] = new Task(command);
             numberOfTasks++;
             System.out.println("added: " + command);
             System.out.println(line);
