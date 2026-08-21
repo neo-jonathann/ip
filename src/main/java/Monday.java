@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -23,8 +24,7 @@ public class Monday {
                 + "____________________________________________________________";
         System.out.println(banner);
 
-        Task[] list = new Task[100];
-        int numberOfTasks = 0;
+        ArrayList<Task> list = new ArrayList<>();
 
         String line = "____________________________________________________________";
         Scanner scanner = new Scanner(System.in);
@@ -47,13 +47,9 @@ public class Monday {
                 This is the 'list' command block.
                 */
                 if (command.equals("list")) {
-                    int i = 0;
-                    int j = 1;
                     System.out.println("Here are the tasks in your list:");
-                    while (i < numberOfTasks) {
-                        System.out.println(j + "." + list[i]);
-                        j++;
-                        i++;
+                    for (int index = 0; index < list.size(); index++) {
+                        System.out.println((index + 1) + "." + list.get(index));
                     }
                     System.out.println(line);
                     continue;
@@ -64,7 +60,7 @@ public class Monday {
                 */
                 if (command.equals("mark") || command.startsWith("mark ")) {
                     if (command.length() == "mark".length()) {
-                        throw new MondayException("Please tell me what to mark.");
+                        throw new MondayException("Please tell me which task number to mark.");
                     }
 
                     String indexString = command.substring(4).trim();
@@ -79,13 +75,13 @@ public class Monday {
                         throw new MondayException("Please enter a valid task number.");
                     }
 
-                    if (taskNumber < 1 || taskNumber > numberOfTasks) {
+                    if (taskNumber < 1 || taskNumber > list.size()) {
                         throw new MondayException("Please tell me a valid task number to mark.");
                     }
 
                     int index = taskNumber - 1;
-                    list[index].markAsDone();
-                    System.out.println("Nice! I've marked this task as done:\n" + "  " + list[index]);
+                    list.get(index).markAsDone();
+                    System.out.println("Nice! I've marked this task as done:\n" + "  " + list.get(index));
                     System.out.println(line);
                     continue;
                 }
@@ -95,7 +91,7 @@ public class Monday {
                 */
                 if (command.equals("unmark") || command.startsWith("unmark ")) {
                     if (command.length() == "unmark".length()) {
-                        throw new MondayException("Please tell me what to unmark.");
+                        throw new MondayException("Please tell me which task number to unmark.");
                     }
 
                     String indexString = command.substring(6).trim();
@@ -110,13 +106,46 @@ public class Monday {
                         throw new MondayException("Please enter a valid task number.");
                     }
 
-                    if (taskNumber < 1 || taskNumber > numberOfTasks) {
+                    if (taskNumber < 1 || taskNumber > list.size()) {
                         throw new MondayException("Please tell me a valid task number to unmark.");
                     }
 
                     int index = taskNumber - 1;
-                    list[index].markAsNotDone();
-                    System.out.println("OK, I've marked this task as not done yet:\n" + "  " + list[index]);
+                    list.get(index).markAsNotDone();
+                    System.out.println("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
+                    System.out.println(line);
+                    continue;
+                }
+
+                /*
+                This is the 'delete' command block.
+                */
+                if (command.equals("delete") || command.startsWith("delete ")) {
+                    if (command.length() == "delete".length()) {
+                        throw new MondayException("Please tell me which task number to delete.");
+                    }
+
+                    String indexString = command.substring(7).trim();
+                    if (indexString.isEmpty()) {
+                        throw new MondayException("Please tell me which task number to delete.");
+                    }
+
+                    int taskNumber;
+                    try {
+                        taskNumber = Integer.parseInt(indexString);
+                    } catch (NumberFormatException e) {
+                        throw new MondayException("Please enter a valid task number.");
+                    }
+
+                    if (taskNumber < 1 || taskNumber > list.size()) {
+                        throw new MondayException("Please tell me a valid task number to delete.");
+                    }
+
+                    int index = taskNumber - 1;
+                    Task deletedTask = list.get(index);
+                    list.remove(index);
+                    System.out.println("Noted. I've removed this task:\n" + "  " + deletedTask +
+                                       "\nNow you have " + list.size() + " tasks in the list.");
                     System.out.println(line);
                     continue;
                 }
@@ -130,10 +159,9 @@ public class Monday {
                         throw new MondayException("Please tell me your todo task.");
                     }
 
-                    list[numberOfTasks] = new Todo(task);
-                    System.out.println("Got it. I've added this task:\n" + "  " + list[numberOfTasks]);
-                    numberOfTasks++;
-                    System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                    list.add(new Todo(task));
+                    System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
+                    System.out.println("Now you have " + list.size() + " tasks in the list.");
                     System.out.println(line);
                     continue;
                 }
@@ -160,10 +188,9 @@ public class Monday {
                         throw new MondayException("Please tell me your deadline task.");
                     }
 
-                    list[numberOfTasks] = new Deadline(task, deadline);
-                    System.out.println("Got it. I've added this task:\n" + "  " + list[numberOfTasks]);
-                    numberOfTasks++;
-                    System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                    list.add(new Deadline(task, deadline));
+                    System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
+                    System.out.println("Now you have " + list.size() + " tasks in the list.");
                     System.out.println(line);
                     continue;
                 }
@@ -199,10 +226,9 @@ public class Monday {
                         throw new MondayException("Please tell me your end time.");
                     }
 
-                    list[numberOfTasks] = new Event(task, timePeriod1, timePeriod2);
-                    System.out.println("Got it. I've added this task:\n" + "  " + list[numberOfTasks]);
-                    numberOfTasks++;
-                    System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+                    list.add(new Event(task, timePeriod1, timePeriod2));
+                    System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
+                    System.out.println("Now you have " + list.size() + " tasks in the list.");
                     System.out.println(line);
                     continue;
                 }
