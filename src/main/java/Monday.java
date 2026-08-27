@@ -5,6 +5,7 @@ import java.util.Scanner;
  * Runs the Monday task-management chatbot.
  */
 public class Monday {
+    private static final String LINE = "____________________________________________________________";
 
     /**
      * Starts the chatbot and processes commands until the user exits.
@@ -12,7 +13,7 @@ public class Monday {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        String banner = "____________________________________________________________\n"
+        String banner = LINE + "\n"
                 + " __  __   ___   _   _  ____      _    __   __\n"
                 + "|  \\/  | / _ \\ | \\ | ||  _ \\    / \\   \\ \\ / /\n"
                 + "| |\\/| || | | ||  \\| || | | |  / _ \\   \\ V / \n"
@@ -20,91 +21,100 @@ public class Monday {
                 + "|_|  |_| \\___/ |_| \\_||____/ /_/   \\_\\  |_|  \n"
                 + "Hello! My name is Monday.\n"
                 + "How can I help you today?\n"
-                + "____________________________________________________________";
+                + LINE;
         System.out.println(banner);
 
-        ArrayList<Task> list = new ArrayList<>();
-        String line = "____________________________________________________________";
+        ArrayList<Task> list = Storage.loadTask();
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
                 String command = scanner.nextLine();
 
-                System.out.println(line);
-
                 if (command.equals("bye")) {
-                    System.out.println("Bye. Hope to see you again soon!");
-                    System.out.println(line);
+                    Storage.saveTask(list);
+                    printResponse("Bye. Hope to see you again soon!");
                     break;
                 }
 
                 if (command.equals("list")) {
-                    showList(list, line);
+                    showList(list);
                     continue;
                 }
 
                 if (command.equals("mark") || command.startsWith("mark ")) {
-                    markTask(command, list, line);
+                    markTask(command, list);
                     continue;
                 }
 
                 if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    unmarkTask(command, list, line);
+                    unmarkTask(command, list);
                     continue;
                 }
 
                 if (command.equals("delete") || command.startsWith("delete ")) {
-                    deleteTask(command, list, line);
+                    deleteTask(command, list);
                     continue;
                 }
 
                 if (command.equals("todo") || command.startsWith("todo ")) {
-                    addTodo(command, list, line);
+                    addTodo(command, list);
                     continue;
                 }
 
                 if (command.equals("deadline") || command.startsWith("deadline ")) {
-                    deadlineTask(command, list, line);
+                    deadlineTask(command, list);
                     continue;
                 }
 
                 if (command.equals("event") || command.startsWith("event ")) {
-                    eventTask(command, list, line);
+                    eventTask(command, list);
                     continue;
                 }
 
                 throw new MondayException("Please tell me your task or which task to mark/unmark.");
 
             } catch (MondayException e) {
-                System.out.println(e.getMessage());
-                System.out.println(line);
+                printResponse(e.getMessage());
             }
         }
     }
 
     /**
+     * Prints a response between separator lines.
+     *
+     * @param response the response to display
+     */
+    private static void printResponse(String response) {
+        System.out.println(LINE);
+        System.out.println(response);
+        System.out.println(LINE);
+    }
+
+    /**
      * Displays all tasks currently in the task list.
+     * Users should enter the command in the following format:
+     * {@code list}
      *
      * @param list the list of tasks to display
-     * @param line the separator line printed after the task list
      */
-    private static void showList(ArrayList<Task> list, String line) {
-        System.out.println("Here are the tasks in your list:");
+    private static void showList(ArrayList<Task> list) {
+        StringBuilder response = new StringBuilder("Here are the tasks in your list:");
         for (int index = 0; index < list.size(); index++) {
-            System.out.println((index + 1) + "." + list.get(index));
+            response.append("\n").append(index + 1).append(".").append(list.get(index));
         }
-        System.out.println(line);
+        printResponse(response.toString());
     }
 
     /**
      * Marks the specified task as completed.
+     * Users should enter the command in the following format:
+     * {@code mark <task number>}
      *
      * @param command the user command containing the task number to mark
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void markTask(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void markTask(String command, ArrayList<Task> list) throws MondayException {
         if (command.length() == "mark".length()) {
             throw new MondayException("Please tell me which task number to mark.");
         }
@@ -127,19 +137,20 @@ public class Monday {
 
         int index = taskNumber - 1;
         list.get(index).markAsDone();
-        System.out.println("Nice! I've marked this task as done:\n" + "  " + list.get(index));
-        System.out.println(line);
+        Storage.saveTask(list);
+        printResponse("Nice! I've marked this task as done:\n" + "  " + list.get(index));
     }
 
     /**
      * Marks the specified task as not completed.
+     * Users should enter the command in the following format:
+     * {@code unmark <task number>}
      *
      * @param command the user command containing the task number to unmark
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void unmarkTask(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void unmarkTask(String command, ArrayList<Task> list) throws MondayException {
         if (command.length() == "unmark".length()) {
             throw new MondayException("Please tell me which task number to unmark.");
         }
@@ -162,19 +173,20 @@ public class Monday {
 
         int index = taskNumber - 1;
         list.get(index).markAsNotDone();
-        System.out.println("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
-        System.out.println(line);
+        Storage.saveTask(list);
+        printResponse("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
     }
 
     /**
      * Deletes the specified task from the task list.
+     * Users should enter the command in the following format:
+     * {@code delete <task number>}
      *
      * @param command the user command containing the task number to delete
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void deleteTask(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void deleteTask(String command, ArrayList<Task> list) throws MondayException {
         if (command.length() == "delete".length()) {
             throw new MondayException("Please tell me which task number to delete.");
         }
@@ -198,40 +210,42 @@ public class Monday {
         int index = taskNumber - 1;
         Task deletedTask = list.get(index);
         list.remove(index);
-        System.out.println("Noted. I've removed this task:\n" + "  " + deletedTask +
+        Storage.saveTask(list);
+        printResponse("Noted. I've removed this task:\n" + "  " + deletedTask +
                 "\nNow you have " + list.size() + " tasks in the list.");
-        System.out.println(line);
     }
 
     /**
      * Adds a todo task to the task list.
+     * Users should enter the command in the following format:
+     * {@code todo <description>}
      *
      * @param command the user command containing the todo description
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the todo description is missing
      */
-    private static void addTodo(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void addTodo(String command, ArrayList<Task> list) throws MondayException {
         String task = command.substring("todo".length()).trim();
         if (task.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
         }
 
         list.add(new Todo(task));
-        System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
-        System.out.println("Now you have " + list.size() + " tasks in the list.");
-        System.out.println(line);
+        Storage.saveTask(list);
+        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+                      + "\nNow you have " + list.size() + " tasks in the list.");
     }
 
     /**
      * Adds a deadline task to the task list.
+     * Users should enter the command in the following format:
+     * {@code deadline <description> /by <deadline>}
      *
      * @param command the user command containing the task description and deadline
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the task description, deadline, or required /by keyword is missing
      */
-    private static void deadlineTask(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void deadlineTask(String command, ArrayList<Task> list) throws MondayException {
         if (command.length() == "deadline".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -251,20 +265,21 @@ public class Monday {
         }
 
         list.add(new Deadline(task, deadline));
-        System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
-        System.out.println("Now you have " + list.size() + " tasks in the list.");
-        System.out.println(line);
+        Storage.saveTask(list);
+        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+                      + "\nNow you have " + list.size() + " tasks in the list.");
     }
 
     /**
      * Adds an event task to the task list.
+     * Users should enter the command in the following format:
+     * {@code event <description> /from <start time> /to <end time>}
      *
      * @param command the user command containing the event description, start time, and end time
      * @param list the list of tasks
-     * @param line the separator line printed after the response
      * @throws MondayException if the event details are missing or the /from and /to keywords are invalid
      */
-    private static void eventTask(String command, ArrayList<Task> list, String line) throws MondayException {
+    private static void eventTask(String command, ArrayList<Task> list) throws MondayException {
         if (command.length() == "event".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -294,8 +309,8 @@ public class Monday {
         }
 
         list.add(new Event(task, timePeriod1, timePeriod2));
-        System.out.println("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1));
-        System.out.println("Now you have " + list.size() + " tasks in the list.");
-        System.out.println(line);
+        Storage.saveTask(list);
+        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+                      + "\nNow you have " + list.size() + " tasks in the list.");
     }
 }
