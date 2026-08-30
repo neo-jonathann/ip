@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Runs the Monday task-management chatbot.
@@ -261,13 +264,27 @@ public class Monday {
 
         String deadline = command.substring(command.indexOf("/by") + "/by".length()).trim();
         if (deadline.isEmpty()) {
-            throw new MondayException("Please tell me your deadline task.");
+            throw new MondayException("Please tell me your deadline.");
         }
 
-        list.add(new Deadline(task, deadline));
-        Storage.saveTask(list);
-        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
-                      + "\nNow you have " + list.size() + " tasks in the list.");
+        String[] dateTimeParts = deadline.split("\\s+");
+        if (dateTimeParts.length > 2) {
+            throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
+        }
+
+        try {
+            LocalDate deadlineDate = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalTime deadlineTime = null;
+            if (dateTimeParts.length == 2) {
+                deadlineTime = LocalTime.parse(dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
+            }
+            list.add(new Deadline(task, deadlineDate, deadlineTime));
+            Storage.saveTask(list);
+            printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+                    + "\nNow you have " + list.size() + " tasks in the list.");
+        } catch (DateTimeParseException e) {
+            throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
+        }
     }
 
     /**
@@ -297,20 +314,49 @@ public class Monday {
             throw new MondayException("Please tell me your task.");
         }
 
-        String timePeriod1 = command
+        String startPeriod1 = command
                 .substring(command.indexOf("/from") + "/from".length(), command.indexOf("/to")).trim();
-        if (timePeriod1.isEmpty()) {
+        if (startPeriod1.isEmpty()) {
             throw new MondayException("Please tell me your start time.");
         }
 
-        String timePeriod2 = command.substring(command.indexOf("/to") + "/to".length()).trim();
-        if (timePeriod2.isEmpty()) {
+        String endPeriod2 = command.substring(command.indexOf("/to") + "/to".length()).trim();
+        if (endPeriod2.isEmpty()) {
             throw new MondayException("Please tell me your end time.");
         }
 
-        list.add(new Event(task, timePeriod1, timePeriod2));
-        Storage.saveTask(list);
-        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
-                      + "\nNow you have " + list.size() + " tasks in the list.");
+        String[] startDateTimeParts = startPeriod1.split("\\s+");
+        String[] endDateTimeParts = endPeriod2.split("\\s+");
+
+        if (startDateTimeParts.length > 2 || endDateTimeParts.length > 2) {
+            throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
+        }
+
+        try {
+            LocalDate startDate = LocalDate.parse(
+                    startDateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalTime startTime = null;
+
+            if (startDateTimeParts.length == 2) {
+                startTime = LocalTime.parse(
+                        startDateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
+            }
+
+            LocalDate endDate = LocalDate.parse(
+                    endDateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalTime endTime = null;
+
+            if (endDateTimeParts.length == 2) {
+                endTime = LocalTime.parse(
+                        endDateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
+            }
+
+            list.add(new Event(task, startDate, startTime, endDate, endTime));
+            Storage.saveTask(list);
+            printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+                    + "\nNow you have " + list.size() + " tasks in the list.");
+        } catch (DateTimeParseException e) {
+            throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
+        }
     }
 }

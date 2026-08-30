@@ -1,29 +1,66 @@
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+/**
+ * Represents a task scheduled between a start and end date, with optional times.
+ */
 public class Event extends Task {
-    private final String timePeriod1;
-    private final String timePeriod2;
+    private final LocalDate startDate;
+    private final LocalTime startTime;
+    private final LocalDate endDate;
+    private final LocalTime endTime;
 
-    public Event(String description, String timePeriod1, String timePeriod2) {
+    public Event(String description, LocalDate startDate, LocalTime startTime,
+                 LocalDate endDate, LocalTime endTime) {
         super(description);
-        this.timePeriod1 = timePeriod1;
-        this.timePeriod2 = timePeriod2;
+        this.startDate = startDate;
+        this.startTime = startTime;
+        this.endDate = endDate;
+        this.endTime = endTime;
     }
 
-    public Event(String description, boolean isDone, String timePeriod1, String timePeriod2) {
+    public Event(String description, boolean isDone, LocalDate startDate, LocalTime startTime,
+                 LocalDate endDate, LocalTime endTime) {
         super(description, isDone);
-        this.timePeriod1 = timePeriod1;
-        this.timePeriod2 = timePeriod2;
+        this.startDate = startDate;
+        this.startTime = startTime;
+        this.endDate = endDate;
+        this.endTime = endTime;
     }
 
-    public String getTimePeriod1() {
-        return timePeriod1;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public String getTimePeriod2() {
-        return timePeriod2;
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
     }
 
     @Override
     public String toString() {
-        return "[E]" +  super.toString() + " (from: " + timePeriod1 + " to: " + timePeriod2 + ")";
+        return "[E]" + super.toString()
+                + " (from: " + formatDateTime(startDate, startTime)
+                + " to: " + formatDateTime(endDate, endTime) + ")";
+    }
+
+    /**
+     * Formats a date and its optional time for display.
+     */
+    private String formatDateTime(LocalDate date, LocalTime time) {
+        String formatted = date.format(DateTimeFormat.DISPLAY_DATE.getFormatter());
+
+        if (time != null) {
+            formatted += " " + time.format(DateTimeFormat.DISPLAY_TIME.getFormatter());
+        }
+
+        return formatted;
     }
 }

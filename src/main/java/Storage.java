@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +64,30 @@ public class Storage {
                 task = new Todo(parts[2].trim(), isDone);
                 break;
             case "D":
-                task = new Deadline(parts[2].trim(), isDone, parts[3].trim());
+                LocalDate deadlineDate = LocalDate.parse(parts[3].trim());
+                LocalTime deadlineTime = null;
+                String savedTime = parts[4].trim();
+                if (!savedTime.isEmpty()) {
+                    deadlineTime = LocalTime.parse(savedTime, DateTimeFormat.INPUT_TIME.getFormatter());
+                }
+                task = new Deadline(parts[2].trim(), isDone, deadlineDate, deadlineTime);
                 break;
             case "E":
-                task = new Event(parts[2].trim(), isDone, parts[3].trim(), parts[4].trim());
+                LocalDate eventDate1 = LocalDate.parse(parts[3].trim());
+                LocalTime eventTime1 = null;
+                String savedTime1 = parts[4].trim();
+                if (!savedTime1.isEmpty()) {
+                    eventTime1 = LocalTime.parse(savedTime1, DateTimeFormat.INPUT_TIME.getFormatter());
+                }
+
+                LocalDate eventDate2 = LocalDate.parse(parts[5].trim());
+                LocalTime eventTime2 = null;
+                String savedTime2 = parts[6].trim();
+                if (!savedTime2.isEmpty()) {
+                    eventTime2 = LocalTime.parse(savedTime2, DateTimeFormat.INPUT_TIME.getFormatter());
+                }
+
+                task = new Event(parts[2].trim(), isDone, eventDate1, eventTime1, eventDate2, eventTime2);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid task type in save file.");
@@ -86,13 +108,22 @@ public class Storage {
 
         if (task instanceof Deadline) {
             Deadline deadline = (Deadline) task;
+            String savedTime = deadline.getDeadlineTime() == null
+                    ? ""
+                    : deadline.getDeadlineTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
             return "D | " + status + " | " + task.getDescription()
-                    + " | " + deadline.getDeadline();
+                    + " | " + deadline.getDeadlineDate() + " | " +  savedTime;
         }
 
         Event event = (Event) task;
+        String savedTime1 = event.getStartTime() == null
+                ? ""
+                : event.getStartTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
+        String savedTime2 = event.getEndTime() == null
+                ? ""
+                : event.getEndTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
         return "E | " + status + " | " + task.getDescription()
-                + " | " + event.getTimePeriod1()
-                + " | " + event.getTimePeriod2();
+                + " | " + event.getStartDate() + " | " + savedTime1
+                + " | " + event.getEndDate() + " | " + savedTime2;
     }
 }
