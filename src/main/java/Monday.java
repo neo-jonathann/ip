@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.time.format.DateTimeParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,104 +7,66 @@ import java.time.LocalTime;
  * Runs the Monday task-management chatbot.
  */
 public class Monday {
-    private static final String LINE = "____________________________________________________________";
-
     /**
      * Starts the chatbot and processes commands until the user exits.
      *
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        String banner = LINE + "\n"
-                + " __  __   ___   _   _  ____      _    __   __\n"
-                + "|  \\/  | / _ \\ | \\ | ||  _ \\    / \\   \\ \\ / /\n"
-                + "| |\\/| || | | ||  \\| || | | |  / _ \\   \\ V / \n"
-                + "| |  | || |_| || |\\  || |_| | / ___ \\   | |  \n"
-                + "|_|  |_| \\___/ |_| \\_||____/ /_/   \\_\\  |_|  \n"
-                + "Hello! My name is Monday.\n"
-                + "How can I help you today?\n"
-                + LINE;
-        System.out.println(banner);
-
         ArrayList<Task> list = Storage.loadTask();
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
+        ui.showWelcome();
         while (true) {
             try {
-                String command = scanner.nextLine();
+                String command = ui.readCommand();
 
                 if (command.equals("bye")) {
                     Storage.saveTask(list);
-                    printResponse("Bye. Hope to see you again soon!");
+                    ui.showResponse("Bye. Hope to see you again soon!");
                     break;
                 }
 
                 if (command.equals("list")) {
-                    showList(list);
+                    ui.showTaskList(list);
                     continue;
                 }
 
                 if (command.equals("mark") || command.startsWith("mark ")) {
-                    markTask(command, list);
+                    markTask(command, list, ui);
                     continue;
                 }
 
                 if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    unmarkTask(command, list);
+                    unmarkTask(command, list, ui);
                     continue;
                 }
 
                 if (command.equals("delete") || command.startsWith("delete ")) {
-                    deleteTask(command, list);
+                    deleteTask(command, list, ui);
                     continue;
                 }
 
                 if (command.equals("todo") || command.startsWith("todo ")) {
-                    addTodo(command, list);
+                    addTodo(command, list, ui);
                     continue;
                 }
 
                 if (command.equals("deadline") || command.startsWith("deadline ")) {
-                    deadlineTask(command, list);
+                    deadlineTask(command, list, ui);
                     continue;
                 }
 
                 if (command.equals("event") || command.startsWith("event ")) {
-                    eventTask(command, list);
+                    eventTask(command, list, ui);
                     continue;
                 }
 
                 throw new MondayException("Please tell me your task or which task to mark/unmark.");
 
             } catch (MondayException e) {
-                printResponse(e.getMessage());
+                ui.showResponse(e.getMessage());
             }
         }
-    }
-
-    /**
-     * Prints a response between separator lines.
-     *
-     * @param response the response to display
-     */
-    private static void printResponse(String response) {
-        System.out.println(LINE);
-        System.out.println(response);
-        System.out.println(LINE);
-    }
-
-    /**
-     * Displays all tasks currently in the task list.
-     * Users should enter the command in the following format:
-     * {@code list}
-     *
-     * @param list the list of tasks to display
-     */
-    private static void showList(ArrayList<Task> list) {
-        StringBuilder response = new StringBuilder("Here are the tasks in your list:");
-        for (int index = 0; index < list.size(); index++) {
-            response.append("\n").append(index + 1).append(".").append(list.get(index));
-        }
-        printResponse(response.toString());
     }
 
     /**
@@ -117,7 +78,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void markTask(String command, ArrayList<Task> list) throws MondayException {
+    private static void markTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         if (command.length() == "mark".length()) {
             throw new MondayException("Please tell me which task number to mark.");
         }
@@ -141,7 +102,7 @@ public class Monday {
         int index = taskNumber - 1;
         list.get(index).markAsDone();
         Storage.saveTask(list);
-        printResponse("Nice! I've marked this task as done:\n" + "  " + list.get(index));
+        ui.showResponse("Nice! I've marked this task as done:\n" + "  " + list.get(index));
     }
 
     /**
@@ -153,7 +114,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void unmarkTask(String command, ArrayList<Task> list) throws MondayException {
+    private static void unmarkTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         if (command.length() == "unmark".length()) {
             throw new MondayException("Please tell me which task number to unmark.");
         }
@@ -177,7 +138,7 @@ public class Monday {
         int index = taskNumber - 1;
         list.get(index).markAsNotDone();
         Storage.saveTask(list);
-        printResponse("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
+        ui.showResponse("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
     }
 
     /**
@@ -189,7 +150,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void deleteTask(String command, ArrayList<Task> list) throws MondayException {
+    private static void deleteTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         if (command.length() == "delete".length()) {
             throw new MondayException("Please tell me which task number to delete.");
         }
@@ -214,7 +175,7 @@ public class Monday {
         Task deletedTask = list.get(index);
         list.remove(index);
         Storage.saveTask(list);
-        printResponse("Noted. I've removed this task:\n" + "  " + deletedTask +
+        ui.showResponse("Noted. I've removed this task:\n" + "  " + deletedTask +
                 "\nNow you have " + list.size() + " tasks in the list.");
     }
 
@@ -227,7 +188,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the todo description is missing
      */
-    private static void addTodo(String command, ArrayList<Task> list) throws MondayException {
+    private static void addTodo(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         String task = command.substring("todo".length()).trim();
         if (task.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
@@ -235,7 +196,7 @@ public class Monday {
 
         list.add(new Todo(task));
         Storage.saveTask(list);
-        printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+        ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
                       + "\nNow you have " + list.size() + " tasks in the list.");
     }
 
@@ -248,7 +209,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the task description, deadline, or required /by keyword is missing
      */
-    private static void deadlineTask(String command, ArrayList<Task> list) throws MondayException {
+    private static void deadlineTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         if (command.length() == "deadline".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -280,7 +241,7 @@ public class Monday {
             }
             list.add(new Deadline(task, deadlineDate, deadlineTime));
             Storage.saveTask(list);
-            printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+            ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
                     + "\nNow you have " + list.size() + " tasks in the list.");
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
@@ -296,7 +257,7 @@ public class Monday {
      * @param list the list of tasks
      * @throws MondayException if the event details are missing or the /from and /to keywords are invalid
      */
-    private static void eventTask(String command, ArrayList<Task> list) throws MondayException {
+    private static void eventTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
         if (command.length() == "event".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -353,7 +314,7 @@ public class Monday {
 
             list.add(new Event(task, startDate, startTime, endDate, endTime));
             Storage.saveTask(list);
-            printResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
+            ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
                     + "\nNow you have " + list.size() + " tasks in the list.");
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");

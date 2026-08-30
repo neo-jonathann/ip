@@ -1,0 +1,66 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/**
+ * Handles all input from and output to the user.
+ */
+public class Ui {
+    private static final String LINE = "____________________________________________________________";
+    private final Scanner scanner;
+
+    /**
+     * Creates a user interface that reads commands from standard input.
+     */
+    public Ui() {
+        scanner = new Scanner(System.in);
+    }
+
+    /**
+     * Displays the welcome message when Monday starts.
+     */
+    public void showWelcome() {
+        String banner = LINE + "\n"
+                + " __  __   ___   _   _  ____      _    __   __\n"
+                + "|  \\/  | / _ \\ | \\ | ||  _ \\    / \\   \\ \\ / /\n"
+                + "| |\\/| || | | ||  \\| || | | |  / _ \\   \\ V / \n"
+                + "| |  | || |_| || |\\  || |_| | / ___ \\   | |  \n"
+                + "|_|  |_| \\___/ |_| \\_||____/ /_/   \\_\\  |_|  \n"
+                + "Hello! My name is Monday.\n"
+                + "How can I help you today?\n"
+                + LINE;
+        System.out.println(banner);
+    }
+
+    /**
+     * Reads one command entered by the user.
+     *
+     * @return the command entered by the user
+     */
+    public String readCommand() {
+        return scanner.nextLine();
+    }
+
+    /**
+     * Displays a message between separator lines.
+     *
+     * @param response the message to display
+     */
+    public void showResponse(String response) {
+        System.out.println(LINE);
+        System.out.println(response);
+        System.out.println(LINE);
+    }
+
+    /**
+     * Displays all tasks in the task list.
+     *
+     * @param tasks the tasks to display
+     */
+    public void showTaskList(ArrayList<Task> tasks) {
+        StringBuilder response = new StringBuilder("Here are the tasks in your list:");
+        for (int index = 0; index < tasks.size(); index++) {
+            response.append("\n").append(index + 1).append(".").append(tasks.get(index));
+        }
+        showResponse(response.toString());
+    }
+}
