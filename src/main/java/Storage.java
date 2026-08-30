@@ -34,7 +34,7 @@ public class Storage {
         return tasks;
     }
 
-    public static void saveTask(ArrayList<Task> tasks) {
+    public static void saveTask(TaskList tasks) {
         ArrayList<String> savedTasks = new ArrayList<>();
 
         for (Task task : tasks) {
