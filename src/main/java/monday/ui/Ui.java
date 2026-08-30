@@ -66,4 +66,24 @@ public class Ui {
         }
         showResponse(response.toString());
     }
+
+    /**
+     * Displays tasks whose descriptions matched a search keyword.
+     *
+     * @param tasks matching tasks to display
+     */
+    public void showMatchingTaskList(TaskList tasks) {
+        if (tasks.size() == 0) {
+            showResponse("No matching tasks found.");
+            return;
+        }
+
+        StringBuilder response = new StringBuilder("Here are the matching tasks in your list:");
+
+        for (int index = 0; index < tasks.size(); index++) {
+            response.append("\n").append(index + 1).append(".").append(tasks.get(index));
+        }
+
+        showResponse(response.toString());
+    }
 }
