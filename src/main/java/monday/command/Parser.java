@@ -69,6 +69,11 @@ public class Parser {
             return true;
         }
 
+        if (command.equals("find") || command.startsWith("find ")) {
+            findTask(command, tasks, ui);
+            return true;
+        }
+
         throw new MondayException("Please tell me your task or which task to mark/unmark.");
     }
 
@@ -324,5 +329,26 @@ public class Parser {
         ui.showResponse("Got it. I've added this task:\n"
                 + "  " + tasks.get(tasks.size() - 1)
                 + "\nNow you have " + tasks.size() + " tasks in the list.");
+    }
+
+    /**
+     * Finds and displays tasks whose descriptions contain a keyword.
+     * Users should enter the command in the following format:
+     * {@code find <keyword>}
+     *
+     * @param command command containing the keyword
+     * @param tasks task list to search
+     * @param ui user interface used to display the matching tasks
+     * @throws MondayException if the keyword is missing
+     */
+    private void findTask(String command, TaskList tasks, Ui ui) throws MondayException {
+        String keyword = command.substring("find".length()).trim();
+
+        if (keyword.isEmpty()) {
+            throw new MondayException("Please tell me what to find.");
+        }
+
+        TaskList matchingTasks = tasks.find(keyword);
+        ui.showMatchingTaskList(matchingTasks);
     }
 }

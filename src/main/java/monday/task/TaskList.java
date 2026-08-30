@@ -2,6 +2,7 @@ package monday.task;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Stores and provides operations on Monday's tasks.
@@ -71,5 +72,24 @@ public class TaskList implements Iterable<Task> {
     @Override
     public Iterator<Task> iterator() {
         return tasks.iterator();
+    }
+
+    /**
+     * Returns tasks whose descriptions contain the given keyword.
+     *
+     * @param keyword keyword to search for
+     * @return task list containing the matching tasks
+     */
+    public TaskList find(String keyword) {
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        String lowerCaseKeyword = keyword.toLowerCase(Locale.ROOT);
+
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase(Locale.ROOT).contains(lowerCaseKeyword)) {
+                matchingTasks.add(task);
+            }
+        }
+
+        return new TaskList(matchingTasks);
     }
 }
