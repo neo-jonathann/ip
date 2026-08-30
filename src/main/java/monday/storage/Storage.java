@@ -15,6 +15,9 @@ import monday.task.TaskList;
 import monday.task.Todo;
 import monday.util.DateTimeFormat;
 
+/**
+ * Loads tasks from and saves tasks to Monday's data file.
+ */
 public class Storage {
     private static final Path FILE_PATH = Path.of("data", "monday.txt");
 
@@ -43,6 +46,11 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves all tasks to the data file.
+     *
+     * @param tasks task list to save.
+     */
     public static void saveTask(TaskList tasks) {
         ArrayList<String> savedTasks = new ArrayList<>();
 
@@ -121,7 +129,7 @@ public class Storage {
                     ? ""
                     : deadline.getDeadlineTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
             return "D | " + status + " | " + task.getDescription()
-                    + " | " + deadline.getDeadlineDate() + " | " +  savedTime;
+                    + " | " + deadline.getDeadlineDate() + " | " + savedTime;
         }
 
         Event event = (Event) task;

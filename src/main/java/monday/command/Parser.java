@@ -21,11 +21,11 @@ public class Parser {
     /**
      * Processes one user command.
      *
-     * @param command command entered by the user
-     * @param tasks task list to update or display
-     * @param ui user interface used to display results
-     * @return true if Monday should continue running, false otherwise
-     * @throws MondayException if the command is invalid
+     * @param command command entered by the user.
+     * @param tasks task list to update or display.
+     * @param ui user interface used to display results.
+     * @return true if Monday should continue running, false otherwise.
+     * @throws MondayException if the command is invalid.
      */
     public boolean executeCommand(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.equals("bye")) {
@@ -77,10 +77,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code mark <task number>}
      *
-     * @param command command containing the task number
-     * @param tasks task list containing the task
-     * @param ui user interface used to display the result
-     * @throws MondayException if the task number is invalid
+     * @param command command containing the task number.
+     * @param tasks task list containing the task.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the task number is invalid.
      */
     private void markTask(String command, TaskList tasks, Ui ui) throws MondayException {
         int index = getTaskIndex(command, "mark", tasks,
@@ -97,10 +97,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code unmark <task number>}
      *
-     * @param command command containing the task number
-     * @param tasks task list containing the task
-     * @param ui user interface used to display the result
-     * @throws MondayException if the task number is invalid
+     * @param command command containing the task number.
+     * @param tasks task list containing the task.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the task number is invalid.
      */
     private void unmarkTask(String command, TaskList tasks, Ui ui) throws MondayException {
         int index = getTaskIndex(command, "unmark", tasks,
@@ -117,10 +117,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code delete <task number>}
      *
-     * @param command command containing the task number
-     * @param tasks task list containing the task
-     * @param ui user interface used to display the result
-     * @throws MondayException if the task number is invalid
+     * @param command command containing the task number.
+     * @param tasks task list containing the task.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the task number is invalid.
      */
     private void deleteTask(String command, TaskList tasks, Ui ui) throws MondayException {
         int index = getTaskIndex(command, "delete", tasks,
@@ -138,10 +138,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code todo <description>}
      *
-     * @param command command containing the todo description
-     * @param tasks task list to update
-     * @param ui user interface used to display the result
-     * @throws MondayException if the description is missing
+     * @param command command containing the todo description.
+     * @param tasks task list to update.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the description is missing.
      */
     private void addTodo(String command, TaskList tasks, Ui ui) throws MondayException {
         String description = command.substring("todo".length()).trim();
@@ -159,10 +159,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code deadline <description> /by <deadline>}
      *
-     * @param command command containing the deadline details
-     * @param tasks task list to update
-     * @param ui user interface used to display the result
-     * @throws MondayException if the deadline details are invalid
+     * @param command command containing the deadline details.
+     * @param tasks task list to update.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the deadline details are invalid.
      */
     private void addDeadline(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "deadline".length()) {
@@ -208,10 +208,10 @@ public class Parser {
      * Users should enter the command in the following format:
      * {@code event <description> /from <start time> /to <end time>}
      *
-     * @param command command containing the event details
-     * @param tasks task list to update
-     * @param ui user interface used to display the result
-     * @throws MondayException if the event details are invalid
+     * @param command command containing the event details.
+     * @param tasks task list to update.
+     * @param ui user interface used to display the result.
+     * @throws MondayException if the event details are invalid.
      */
     private void addEvent(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "event".length()) {
@@ -269,16 +269,16 @@ public class Parser {
     /**
      * Returns a zero-based task index from a command containing a task number.
      *
-     * @param command command containing the task number
-     * @param commandWord command word at the start of the command
-     * @param tasks task list used to validate the task number
-     * @param missingNumberMessage message displayed when a number is absent
-     * @param invalidNumberMessage message displayed when a number is invalid
-     * @return zero-based index of the requested task
-     * @throws MondayException if the task number is invalid
+     * @param command command containing the task number.
+     * @param commandWord command word at the start of the command.
+     * @param tasks task list used to validate the task number.
+     * @param missingNumberMessage message displayed when a number is absent.
+     * @param invalidNumberMessage message displayed when a number is invalid.
+     * @return zero-based index of the requested task.
+     * @throws MondayException if the task number is invalid.
      */
     private int getTaskIndex(String command, String commandWord, TaskList tasks,
-                             String missingNumberMessage, String invalidNumberMessage)
+            String missingNumberMessage, String invalidNumberMessage)
             throws MondayException {
         String numberText = command.substring(commandWord.length()).trim();
         if (numberText.isEmpty()) {
@@ -302,8 +302,8 @@ public class Parser {
     /**
      * Parses an optional time from a date-and-time input.
      *
-     * @param dateTimeParts date and optional time parts
-     * @return parsed time, or null when no time was supplied
+     * @param dateTimeParts date and optional time parts.
+     * @return parsed time, or null when no time was supplied.
      */
     private LocalTime parseOptionalTime(String[] dateTimeParts) {
         if (dateTimeParts.length == 1) {
@@ -317,8 +317,8 @@ public class Parser {
     /**
      * Displays the task most recently added to the task list.
      *
-     * @param tasks task list containing the new task
-     * @param ui user interface used to display the result
+     * @param tasks task list containing the new task.
+     * @param ui user interface used to display the result.
      */
     private void showAddedTask(TaskList tasks, Ui ui) {
         ui.showResponse("Got it. I've added this task:\n"
