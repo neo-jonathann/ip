@@ -12,12 +12,18 @@ public class Deadline extends Task {
     private final LocalDate deadlineDate;
     private final LocalTime deadlineTime;
 
+    /**
+     * Creates an incomplete deadline task with the given details.
+     */
     public Deadline(String description, LocalDate deadlineDate, LocalTime deadlineTime) {
         super(description);
         this.deadlineDate = deadlineDate;
         this.deadlineTime = deadlineTime;
     }
 
+    /**
+     * Creates a deadline task with the given details and completion status.
+     */
     public Deadline(String description, boolean isDone, LocalDate deadlineDate, LocalTime deadlineTime) {
         super(description, isDone);
         this.deadlineDate = deadlineDate;

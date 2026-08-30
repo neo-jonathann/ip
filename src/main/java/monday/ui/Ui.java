@@ -37,7 +37,7 @@ public class Ui {
     /**
      * Reads one command entered by the user.
      *
-     * @return the command entered by the user
+     * @return the command entered by the user.
      */
     public String readCommand() {
         return scanner.nextLine();
@@ -46,7 +46,7 @@ public class Ui {
     /**
      * Displays a message between separator lines.
      *
-     * @param response the message to display
+     * @param response the message to display.
      */
     public void showResponse(String response) {
         System.out.println(LINE);
@@ -57,7 +57,7 @@ public class Ui {
     /**
      * Displays all tasks in the task list.
      *
-     * @param tasks the tasks to display
+     * @param tasks the tasks to display.
      */
     public void showTaskList(TaskList tasks) {
         StringBuilder response = new StringBuilder("Here are the tasks in your list:");
