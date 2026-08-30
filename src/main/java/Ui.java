@@ -56,7 +56,7 @@ public class Ui {
      *
      * @param tasks the tasks to display
      */
-    public void showTaskList(ArrayList<Task> tasks) {
+    public void showTaskList(TaskList tasks) {
         StringBuilder response = new StringBuilder("Here are the tasks in your list:");
         for (int index = 0; index < tasks.size(); index++) {
             response.append("\n").append(index + 1).append(".").append(tasks.get(index));

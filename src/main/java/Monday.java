@@ -13,7 +13,7 @@ public class Monday {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        ArrayList<Task> list = Storage.loadTask();
+        TaskList tasks = new TaskList(Storage.loadTask());
         Ui ui = new Ui();
         ui.showWelcome();
         while (true) {
@@ -21,43 +21,43 @@ public class Monday {
                 String command = ui.readCommand();
 
                 if (command.equals("bye")) {
-                    Storage.saveTask(list);
+                    Storage.saveTask(tasks);
                     ui.showResponse("Bye. Hope to see you again soon!");
                     break;
                 }
 
                 if (command.equals("list")) {
-                    ui.showTaskList(list);
+                    ui.showTaskList(tasks);
                     continue;
                 }
 
                 if (command.equals("mark") || command.startsWith("mark ")) {
-                    markTask(command, list, ui);
+                    markTask(command, tasks, ui);
                     continue;
                 }
 
                 if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    unmarkTask(command, list, ui);
+                    unmarkTask(command, tasks, ui);
                     continue;
                 }
 
                 if (command.equals("delete") || command.startsWith("delete ")) {
-                    deleteTask(command, list, ui);
+                    deleteTask(command, tasks, ui);
                     continue;
                 }
 
                 if (command.equals("todo") || command.startsWith("todo ")) {
-                    addTodo(command, list, ui);
+                    addTodo(command, tasks, ui);
                     continue;
                 }
 
                 if (command.equals("deadline") || command.startsWith("deadline ")) {
-                    deadlineTask(command, list, ui);
+                    deadlineTask(command, tasks, ui);
                     continue;
                 }
 
                 if (command.equals("event") || command.startsWith("event ")) {
-                    eventTask(command, list, ui);
+                    eventTask(command, tasks, ui);
                     continue;
                 }
 
@@ -75,10 +75,10 @@ public class Monday {
      * {@code mark <task number>}
      *
      * @param command the user command containing the task number to mark
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void markTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void markTask(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "mark".length()) {
             throw new MondayException("Please tell me which task number to mark.");
         }
@@ -95,14 +95,14 @@ public class Monday {
             throw new MondayException("Please enter a valid task number.");
         }
 
-        if (taskNumber < 1 || taskNumber > list.size()) {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new MondayException("Please tell me a valid task number to mark.");
         }
 
         int index = taskNumber - 1;
-        list.get(index).markAsDone();
-        Storage.saveTask(list);
-        ui.showResponse("Nice! I've marked this task as done:\n" + "  " + list.get(index));
+        tasks.get(index).markAsDone();
+        Storage.saveTask(tasks);
+        ui.showResponse("Nice! I've marked this task as done:\n" + "  " + tasks.get(index));
     }
 
     /**
@@ -111,10 +111,10 @@ public class Monday {
      * {@code unmark <task number>}
      *
      * @param command the user command containing the task number to unmark
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void unmarkTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void unmarkTask(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "unmark".length()) {
             throw new MondayException("Please tell me which task number to unmark.");
         }
@@ -131,14 +131,14 @@ public class Monday {
             throw new MondayException("Please enter a valid task number.");
         }
 
-        if (taskNumber < 1 || taskNumber > list.size()) {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new MondayException("Please tell me a valid task number to unmark.");
         }
 
         int index = taskNumber - 1;
-        list.get(index).markAsNotDone();
-        Storage.saveTask(list);
-        ui.showResponse("OK, I've marked this task as not done yet:\n" + "  " + list.get(index));
+        tasks.get(index).markAsNotDone();
+        Storage.saveTask(tasks);
+        ui.showResponse("OK, I've marked this task as not done yet:\n" + "  " + tasks.get(index));
     }
 
     /**
@@ -147,10 +147,10 @@ public class Monday {
      * {@code delete <task number>}
      *
      * @param command the user command containing the task number to delete
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the task number is missing, invalid, or out of range
      */
-    private static void deleteTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void deleteTask(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "delete".length()) {
             throw new MondayException("Please tell me which task number to delete.");
         }
@@ -167,16 +167,16 @@ public class Monday {
             throw new MondayException("Please enter a valid task number.");
         }
 
-        if (taskNumber < 1 || taskNumber > list.size()) {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new MondayException("Please tell me a valid task number to delete.");
         }
 
         int index = taskNumber - 1;
-        Task deletedTask = list.get(index);
-        list.remove(index);
-        Storage.saveTask(list);
+        Task deletedTask = tasks.get(index);
+        tasks.remove(index);
+        Storage.saveTask(tasks);
         ui.showResponse("Noted. I've removed this task:\n" + "  " + deletedTask +
-                "\nNow you have " + list.size() + " tasks in the list.");
+                "\nNow you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
@@ -185,19 +185,19 @@ public class Monday {
      * {@code todo <description>}
      *
      * @param command the user command containing the todo description
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the todo description is missing
      */
-    private static void addTodo(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void addTodo(String command, TaskList tasks, Ui ui) throws MondayException {
         String task = command.substring("todo".length()).trim();
         if (task.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
         }
 
-        list.add(new Todo(task));
-        Storage.saveTask(list);
-        ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
-                      + "\nNow you have " + list.size() + " tasks in the list.");
+        tasks.add(new Todo(task));
+        Storage.saveTask(tasks);
+        ui.showResponse("Got it. I've added this task:\n" + "  " + tasks.get(tasks.size() - 1)
+                      + "\nNow you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
@@ -206,10 +206,10 @@ public class Monday {
      * {@code deadline <description> /by <deadline>}
      *
      * @param command the user command containing the task description and deadline
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the task description, deadline, or required /by keyword is missing
      */
-    private static void deadlineTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void deadlineTask(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "deadline".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -239,10 +239,10 @@ public class Monday {
             if (dateTimeParts.length == 2) {
                 deadlineTime = LocalTime.parse(dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
             }
-            list.add(new Deadline(task, deadlineDate, deadlineTime));
-            Storage.saveTask(list);
-            ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
-                    + "\nNow you have " + list.size() + " tasks in the list.");
+            tasks.add(new Deadline(task, deadlineDate, deadlineTime));
+            Storage.saveTask(tasks);
+            ui.showResponse("Got it. I've added this task:\n" + "  " + tasks.get(tasks.size() - 1)
+                    + "\nNow you have " + tasks.size() + " tasks in the list.");
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
         }
@@ -254,10 +254,10 @@ public class Monday {
      * {@code event <description> /from <start time> /to <end time>}
      *
      * @param command the user command containing the event description, start time, and end time
-     * @param list the list of tasks
+     * @param tasks the list of tasks
      * @throws MondayException if the event details are missing or the /from and /to keywords are invalid
      */
-    private static void eventTask(String command, ArrayList<Task> list, Ui ui) throws MondayException {
+    private static void eventTask(String command, TaskList tasks, Ui ui) throws MondayException {
         if (command.length() == "event".length()) {
             throw new MondayException("Please tell me your task.");
         }
@@ -312,10 +312,10 @@ public class Monday {
                         endDateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
             }
 
-            list.add(new Event(task, startDate, startTime, endDate, endTime));
-            Storage.saveTask(list);
-            ui.showResponse("Got it. I've added this task:\n" + "  " + list.get(list.size() - 1)
-                    + "\nNow you have " + list.size() + " tasks in the list.");
+            tasks.add(new Event(task, startDate, startTime, endDate, endTime));
+            Storage.saveTask(tasks);
+            ui.showResponse("Got it. I've added this task:\n" + "  " + tasks.get(tasks.size() - 1)
+                    + "\nNow you have " + tasks.size() + " tasks in the list.");
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
         }
