@@ -13,7 +13,7 @@ public class Monday {
     /**
      * Starts the chatbot and processes commands until the user exits.
      *
-     * @param args command-line arguments, which are not used
+     * @param args command-line arguments, which are not used.
      */
     public static void main(String[] args) {
         TaskList tasks = new TaskList(Storage.loadTask());

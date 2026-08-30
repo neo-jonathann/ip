@@ -19,7 +19,7 @@ public class TaskList implements Iterable<Task> {
     /**
      * Creates a task list containing the supplied tasks.
      *
-     * @param tasks tasks to include in this task list
+     * @param tasks tasks to include in this task list.
      */
     public TaskList(ArrayList<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
@@ -28,7 +28,7 @@ public class TaskList implements Iterable<Task> {
     /**
      * Adds a task to the end of this task list.
      *
-     * @param task task to add
+     * @param task task to add.
      */
     public void add(Task task) {
         tasks.add(task);
@@ -37,8 +37,8 @@ public class TaskList implements Iterable<Task> {
     /**
      * Returns the task at the specified zero-based index.
      *
-     * @param index zero-based index of the task
-     * @return the task at the given index
+     * @param index zero-based index of the task.
+     * @return the task at the given index.
      */
     public Task get(int index) {
         return tasks.get(index);
@@ -47,8 +47,8 @@ public class TaskList implements Iterable<Task> {
     /**
      * Removes and returns the task at the specified zero-based index.
      *
-     * @param index zero-based index of the task
-     * @return the removed task
+     * @param index zero-based index of the task.
+     * @return the removed task.
      */
     public Task remove(int index) {
         return tasks.remove(index);
@@ -57,7 +57,7 @@ public class TaskList implements Iterable<Task> {
     /**
      * Returns the number of tasks in this list.
      *
-     * @return number of tasks
+     * @return number of tasks.
      */
     public int size() {
         return tasks.size();
@@ -66,7 +66,7 @@ public class TaskList implements Iterable<Task> {
     /**
      * Returns an iterator over the tasks in this list.
      *
-     * @return iterator over the tasks
+     * @return iterator over the tasks.
      */
     @Override
     public Iterator<Task> iterator() {

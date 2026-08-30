@@ -14,6 +14,9 @@ public class Event extends Task {
     private final LocalDate endDate;
     private final LocalTime endTime;
 
+    /**
+     * Creates an incomplete event task with the given schedule.
+     */
     public Event(String description, LocalDate startDate, LocalTime startTime,
                  LocalDate endDate, LocalTime endTime) {
         super(description);
@@ -23,6 +26,9 @@ public class Event extends Task {
         this.endTime = endTime;
     }
 
+    /**
+     * Creates an event task with the given schedule and completion status.
+     */
     public Event(String description, boolean isDone, LocalDate startDate, LocalTime startTime,
                  LocalDate endDate, LocalTime endTime) {
         super(description, isDone);

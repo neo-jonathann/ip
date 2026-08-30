@@ -1,14 +1,23 @@
 package monday.task;
 
+/**
+ * Represents a task managed by Monday.
+ */
 public class Task {
     private final String description;
     private boolean isDone;
 
+    /**
+     * Creates an incomplete task with the given description.
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Creates a task with the given description and completion status.
+     */
     public Task(String description, boolean isDone) {
         this.description = description;
         this.isDone = isDone;
