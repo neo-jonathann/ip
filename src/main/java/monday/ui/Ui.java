@@ -1,5 +1,8 @@
-import java.util.ArrayList;
+package monday.ui;
+
 import java.util.Scanner;
+
+import monday.task.TaskList;
 
 /**
  * Handles all input from and output to the user.

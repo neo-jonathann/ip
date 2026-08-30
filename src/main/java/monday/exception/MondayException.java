@@ -1,3 +1,5 @@
+package monday.exception;
+
 /**
  * Signals an invalid command or missing command detail entered by the user.
  */

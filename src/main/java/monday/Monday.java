@@ -1,3 +1,11 @@
+package monday;
+
+import monday.command.Parser;
+import monday.exception.MondayException;
+import monday.storage.Storage;
+import monday.task.TaskList;
+import monday.ui.Ui;
+
 /**
  * Runs the Monday task-management chatbot.
  */
