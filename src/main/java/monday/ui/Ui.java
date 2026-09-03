@@ -10,6 +10,7 @@ import monday.task.TaskList;
 public class Ui {
     private static final String LINE = "____________________________________________________________";
     private final Scanner scanner;
+    private String response;
 
     /**
      * Creates a user interface that reads commands from standard input.
@@ -32,6 +33,9 @@ public class Ui {
                 + "How can I help you today?\n"
                 + LINE;
         System.out.println(banner);
+
+        String bannerForGui = "Hello! My name is Monday.\n How can I help you today?";
+        response = bannerForGui;
     }
 
     /**
@@ -52,6 +56,8 @@ public class Ui {
         System.out.println(LINE);
         System.out.println(response);
         System.out.println(LINE);
+
+        this.response = response;
     }
 
     /**
@@ -85,5 +91,14 @@ public class Ui {
         }
 
         showResponse(response.toString());
+    }
+
+    /**
+     * Return's Monday's most recently stored response.
+     *
+     * @return the latest response text.
+     */
+    public String getResponse() {
+        return response;
     }
 }
