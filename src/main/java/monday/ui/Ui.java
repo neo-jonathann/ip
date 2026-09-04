@@ -46,9 +46,11 @@ public class Ui {
     /**
      * Displays a message between separator lines.
      *
-     * @param response the message to display.
+     * @param responses the message to display.
      */
-    public void showResponse(String response) {
+    public void showResponse(String... responses) {
+        String response = String.join("\n", responses);
+
         System.out.println(LINE);
         System.out.println(response);
         System.out.println(LINE);

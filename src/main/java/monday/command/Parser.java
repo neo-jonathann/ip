@@ -94,7 +94,7 @@ public class Parser {
 
         tasks.get(index).markAsDone();
         Storage.saveTask(tasks);
-        ui.showResponse("Nice! I've marked this task as done:\n" + "  " + tasks.get(index));
+        ui.showResponse("Nice! I've marked this task as done:", "  " + tasks.get(index));
     }
 
     /**
@@ -114,7 +114,7 @@ public class Parser {
 
         tasks.get(index).markAsNotDone();
         Storage.saveTask(tasks);
-        ui.showResponse("OK, I've marked this task as not done yet:\n" + "  " + tasks.get(index));
+        ui.showResponse("OK, I've marked this task as not done yet:", "  " + tasks.get(index));
     }
 
     /**
@@ -134,8 +134,8 @@ public class Parser {
 
         Task deletedTask = tasks.remove(index);
         Storage.saveTask(tasks);
-        ui.showResponse("Noted. I've removed this task:\n" + "  " + deletedTask
-                + "\nNow you have " + tasks.size() + " tasks in the list.");
+        ui.showResponse("Noted. I've removed this task:", "  " + deletedTask,
+                "Now you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
@@ -326,9 +326,9 @@ public class Parser {
      * @param ui user interface used to display the result.
      */
     private void showAddedTask(TaskList tasks, Ui ui) {
-        ui.showResponse("Got it. I've added this task:\n"
-                + "  " + tasks.get(tasks.size() - 1)
-                + "\nNow you have " + tasks.size() + " tasks in the list.");
+        ui.showResponse("Got it. I've added this task:",
+                "  " + tasks.get(tasks.size() - 1),
+                "Now you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
