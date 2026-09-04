@@ -10,6 +10,17 @@ import monday.ui.Ui;
  * Runs the Monday task-management chatbot.
  */
 public class Monday {
+    TaskList tasks;
+    Ui ui;
+    Parser parser;
+    private boolean isRunning = true;
+
+    public Monday() {
+        tasks = new TaskList(Storage.loadTask());
+        ui = new Ui();
+        parser = new Parser();
+    }
+
     /**
      * Starts the chatbot and processes commands until the user exits.
      *
@@ -31,5 +42,34 @@ public class Monday {
                 ui.showResponse(e.getMessage());
             }
         }
+    }
+
+    /**
+     * Returns a response in String format
+     */
+    public String getResponse(String input) {
+        try {
+            isRunning = parser.executeCommand(input, tasks, ui);
+            return ui.getResponse();
+        } catch (MondayException e) {
+            return e.getMessage();
+        }
+    }
+
+    /**
+     * Returns Monday's welcome message.
+     */
+    public String getWelcome() {
+        ui.showWelcome();
+        return ui.getResponse();
+    }
+
+    /**
+     * Returns whether Monday should continue running.
+     *
+     * @return true if Monday should continue; false otherwise.
+     */
+    public boolean isRunning() {
+        return isRunning;
     }
 }
