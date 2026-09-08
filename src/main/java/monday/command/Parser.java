@@ -255,12 +255,10 @@ public class Parser {
         }
 
         try {
-            LocalDate startDate = LocalDate.parse(
-                    startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalDate startDate = LocalDate.parse(startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime startTime = parseOptionalTime(startParts);
 
-            LocalDate endDate = LocalDate.parse(
-                    endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalDate endDate = LocalDate.parse(endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime endTime = parseOptionalTime(endParts);
 
             tasks.add(new Event(description, startDate, startTime, endDate, endTime));
@@ -326,6 +324,8 @@ public class Parser {
      * @param ui user interface used to display the result.
      */
     private void showAddedTask(TaskList tasks, Ui ui) {
+        assert tasks.size() > 0 : "There are currently no tasks in the list. There must at least be one task.";
+
         ui.showResponse("Got it. I've added this task:",
                 "  " + tasks.get(tasks.size() - 1),
                 "Now you have " + tasks.size() + " tasks in the list.");
