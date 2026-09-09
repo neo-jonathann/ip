@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class TaskTest {
     @Test
     void markAsDone_marksTaskAndUpdatesDisplay() {
-        Task task = new Task("read chapter");
+        Task task = new Task("read chapter", "Phantom Note");
 
         task.markAsDone();
 
@@ -20,7 +20,7 @@ class TaskTest {
 
     @Test
     void markAsNotDone_unmarksPreviouslyCompletedTask() {
-        Task task = new Task("read chapter", true);
+        Task task = new Task("read chapter", true, "Phantom Note");
 
         task.markAsNotDone();
 

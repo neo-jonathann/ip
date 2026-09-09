@@ -75,16 +75,19 @@ public class Storage {
         String taskType = parts[0].trim();
         boolean isDone = parts[1].trim().equals("1");
         String taskDescription = parts[2].trim();
+        String notes;
         Task task;
 
         switch (taskType) {
             case "T":
-                task = new Todo(taskDescription, isDone);
+                notes = parts[3].trim();
+                task = new Todo(taskDescription, isDone, notes);
                 break;
             case "D":
                 LocalDate deadlineDate = LocalDate.parse(parts[3].trim());
                 LocalTime deadlineTime = parseOptionalTime(parts[4].trim());
-                task = new Deadline(taskDescription, isDone, deadlineDate, deadlineTime);
+                notes = parts[5].trim();
+                task = new Deadline(taskDescription, isDone, deadlineDate, deadlineTime, notes);
                 break;
             case "E":
                 LocalDate eventDate1 = LocalDate.parse(parts[3].trim());
@@ -93,7 +96,8 @@ public class Storage {
                 LocalDate eventDate2 = LocalDate.parse(parts[5].trim());
                 LocalTime eventTime2 = parseOptionalTime(parts[6].trim());
 
-                task = new Event(taskDescription, isDone, eventDate1, eventTime1, eventDate2, eventTime2);
+                notes = parts[7].trim();
+                task = new Event(taskDescription, isDone, eventDate1, eventTime1, eventDate2, eventTime2, notes);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid task type in save file.");
@@ -109,7 +113,7 @@ public class Storage {
         String status = task.isDone() ? "1" : "0";
 
         if (task instanceof Todo) {
-            return "T | " + status + " | " + task.getDescription();
+            return "T | " + status + " | " + task.getDescription() + " | " + task.getNotes();
         }
 
         if (task instanceof Deadline) {
@@ -118,7 +122,7 @@ public class Storage {
                     ? ""
                     : deadline.getDeadlineTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
             return "D | " + status + " | " + task.getDescription()
-                    + " | " + deadline.getDeadlineDate() + " | " + savedTime;
+                    + " | " + deadline.getDeadlineDate() + " | " + savedTime +  " | " + task.getNotes();
         }
 
         assert task instanceof Event : "The task is not declared as a Todo, Deadline, or Event task.";
@@ -131,7 +135,7 @@ public class Storage {
                 : event.getEndTime().format(DateTimeFormat.INPUT_TIME.getFormatter());
         return "E | " + status + " | " + task.getDescription()
                 + " | " + event.getStartDate() + " | " + savedTime1
-                + " | " + event.getEndDate() + " | " + savedTime2;
+                + " | " + event.getEndDate() + " | " + savedTime2 +  " | " + task.getNotes();
     }
 
     /**

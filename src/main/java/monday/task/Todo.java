@@ -8,19 +8,19 @@ public class Todo extends Task {
     /**
      * Creates an incomplete todo task with the given description.
      */
-    public Todo(String description) {
-        super(description);
+    public Todo(String description, String notes) {
+        super(description, notes);
     }
 
     /**
      * Creates a todo task with the given description and completion status.
      */
-    public Todo(String description, boolean isDone) {
-        super(description, isDone);
+    public Todo(String description, boolean isDone, String notes) {
+        super(description, isDone, notes);
     }
 
     @Override
     public String toString() {
-        return "[T]" + super.toString();
+        return "[T]" + super.toString() + " " + this.getNotes();
     }
 }

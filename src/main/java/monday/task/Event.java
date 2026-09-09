@@ -19,8 +19,8 @@ public class Event extends Task {
      */
 
     public Event(String description, LocalDate startDate, LocalTime startTime,
-                 LocalDate endDate, LocalTime endTime) {
-        super(description);
+                 LocalDate endDate, LocalTime endTime, String notes) {
+        super(description, notes);
         this.startDate = startDate;
         this.startTime = startTime;
         this.endDate = endDate;
@@ -32,8 +32,8 @@ public class Event extends Task {
      */
 
     public Event(String description, boolean isDone, LocalDate startDate, LocalTime startTime,
-                 LocalDate endDate, LocalTime endTime) {
-        super(description, isDone);
+                 LocalDate endDate, LocalTime endTime, String notes) {
+        super(description, isDone, notes);
         this.startDate = startDate;
         this.startTime = startTime;
         this.endDate = endDate;
@@ -60,7 +60,8 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString()
                 + " (from: " + formatDateTime(startDate, startTime)
-                + " to: " + formatDateTime(endDate, endTime) + ")";
+                + " to: " + formatDateTime(endDate, endTime) + ") "
+                + this.getNotes();
     }
 
     /**

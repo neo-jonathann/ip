@@ -141,7 +141,7 @@ public class Parser {
     /**
      * Adds a todo task to the task list.
      * Users should enter the command in the following format:
-     * {@code todo <description>}
+     * {@code todo <description> /notes <notes>}
      *
      * @param command command containing the todo description.
      * @param tasks task list to update.
@@ -149,12 +149,14 @@ public class Parser {
      * @throws MondayException if the description is missing.
      */
     private void addTodo(String command, TaskList tasks, Ui ui) throws MondayException {
-        String description = command.substring("todo".length()).trim();
+        String description = command
+                .substring(command.indexOf("todo") + "todo".length(), command.indexOf("/notes")).trim();
+        String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
         }
 
-        tasks.add(new Todo(description));
+        tasks.add(new Todo(description, notes));
         Storage.saveTask(tasks);
         showAddedTask(tasks, ui);
     }
@@ -162,7 +164,7 @@ public class Parser {
     /**
      * Adds a deadline task to the task list.
      * Users should enter the command in the following format:
-     * {@code deadline <description> /by <deadline>}
+     * {@code deadline <description> /by <deadline> /notes <notes>}
      *
      * @param command command containing the deadline details.
      * @param tasks task list to update.
@@ -183,7 +185,8 @@ public class Parser {
             throw new MondayException("Please tell me your task.");
         }
 
-        String deadline = command.substring(command.indexOf("/by") + "/by".length()).trim();
+        String deadline = command
+                .substring(command.indexOf("/by") + "/by".length(), command.indexOf("/notes")).trim();
         if (deadline.isEmpty()) {
             throw new MondayException("Please tell me your deadline.");
         }
@@ -193,10 +196,12 @@ public class Parser {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
         }
 
+        String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
+
         try {
             LocalDate date = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime time = parseOptionalTime(dateTimeParts);
-            tasks.add(new Deadline(description, date, time));
+            tasks.add(new Deadline(description, date, time, notes));
             Storage.saveTask(tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {
@@ -207,7 +212,7 @@ public class Parser {
     /**
      * Adds an event task to the task list.
      * Users should enter the command in the following format:
-     * {@code event <description> /from <start time> /to <end time>}
+     * {@code event <description> /from <start time> /to <end time> /notes <notes>}
      *
      * @param command command containing the event details.
      * @param tasks task list to update.
@@ -239,7 +244,7 @@ public class Parser {
         }
 
         String endPeriod = command
-                .substring(command.indexOf("/to") + "/to".length()).trim();
+                .substring(command.indexOf("/to") + "/to".length(), command.indexOf("/notes")).trim();
         if (endPeriod.isEmpty()) {
             throw new MondayException("Please tell me your end time.");
         }
@@ -250,6 +255,8 @@ public class Parser {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
         }
 
+        String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
+
         try {
             LocalDate startDate = LocalDate.parse(startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime startTime = parseOptionalTime(startParts);
@@ -257,7 +264,7 @@ public class Parser {
             LocalDate endDate = LocalDate.parse(endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime endTime = parseOptionalTime(endParts);
 
-            tasks.add(new Event(description, startDate, startTime, endDate, endTime));
+            tasks.add(new Event(description, startDate, startTime, endDate, endTime, notes));
             Storage.saveTask(tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {

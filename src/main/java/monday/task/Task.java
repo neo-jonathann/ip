@@ -6,21 +6,24 @@ package monday.task;
 public class Task {
     private final String description;
     private boolean isDone;
+    private final String notes;
 
     /**
      * Creates an incomplete task with the given description.
      */
-    public Task(String description) {
+    public Task(String description, String notes) {
         this.description = description;
         this.isDone = false;
+        this.notes = notes;
     }
 
     /**
      * Creates a task with the given description and completion status.
      */
-    public Task(String description, boolean isDone) {
+    public Task(String description, boolean isDone, String notes) {
         this.description = description;
         this.isDone = isDone;
+        this.notes = notes;
     }
 
     public String getDescription() {
@@ -41,6 +44,10 @@ public class Task {
 
     public void markAsNotDone() {
         isDone = false;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 
     @Override

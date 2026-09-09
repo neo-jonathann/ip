@@ -16,7 +16,8 @@ class DeadlineTest {
         Deadline deadline = new Deadline(
                 "submit report",
                 LocalDate.of(2026, 8, 30),
-                LocalTime.of(14, 30));
+                LocalTime.of(14, 30),
+                "Phantom Note");
 
         assertEquals("[D][ ] submit report (by: 30 Aug 2026 1430)",
                 deadline.toString());
@@ -27,7 +28,8 @@ class DeadlineTest {
         Deadline deadline = new Deadline(
                 "submit report",
                 LocalDate.of(2026, 8, 30),
-                null);
+                null,
+                "Phantom Note");
 
         assertEquals("[D][ ] submit report (by: 30 Aug 2026)",
                 deadline.toString());
