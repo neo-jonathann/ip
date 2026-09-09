@@ -31,12 +31,18 @@ public class MainWindow extends AnchorPane {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private Image mondayImage = new Image(this.getClass().getResourceAsStream("/images/DaMonday.png"));
 
+    /**
+     * Initializes the GUI after FXML fields have been injected.
+     * Binds the scroll pane to the dialog container so that new messages remain visible.
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
-    /** Injects the Monday instance */
+    /**
+     * Injects the Monday instance.
+     */
     public void setMonday(Monday monday) {
         this.monday = monday;
     }
@@ -61,8 +67,7 @@ public class MainWindow extends AnchorPane {
 
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getMondayDialog(response, mondayImage)
-        );
+                DialogBox.getMondayDialog(response, mondayImage));
         userInput.clear();
     }
 
@@ -71,8 +76,7 @@ public class MainWindow extends AnchorPane {
      */
     public void showWelcomeMessage() {
         String welcomeMessage = monday.getWelcome();
-        dialogContainer.getChildren().addAll(
-                DialogBox.getMondayDialog(welcomeMessage, mondayImage)
+        dialogContainer.getChildren().addAll(DialogBox.getMondayDialog(welcomeMessage, mondayImage)
         );
     }
 }

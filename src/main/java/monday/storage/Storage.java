@@ -74,37 +74,26 @@ public class Storage {
 
         String taskType = parts[0].trim();
         boolean isDone = parts[1].trim().equals("1");
+        String taskDescription = parts[2].trim();
         Task task;
 
         switch (taskType) {
             case "T":
-                task = new Todo(parts[2].trim(), isDone);
+                task = new Todo(taskDescription, isDone);
                 break;
             case "D":
                 LocalDate deadlineDate = LocalDate.parse(parts[3].trim());
-                LocalTime deadlineTime = null;
-                String savedTime = parts[4].trim();
-                if (!savedTime.isEmpty()) {
-                    deadlineTime = LocalTime.parse(savedTime, DateTimeFormat.INPUT_TIME.getFormatter());
-                }
-                task = new Deadline(parts[2].trim(), isDone, deadlineDate, deadlineTime);
+                LocalTime deadlineTime = parseOptionalTime(parts[4].trim());
+                task = new Deadline(taskDescription, isDone, deadlineDate, deadlineTime);
                 break;
             case "E":
                 LocalDate eventDate1 = LocalDate.parse(parts[3].trim());
-                LocalTime eventTime1 = null;
-                String savedTime1 = parts[4].trim();
-                if (!savedTime1.isEmpty()) {
-                    eventTime1 = LocalTime.parse(savedTime1, DateTimeFormat.INPUT_TIME.getFormatter());
-                }
+                LocalTime eventTime1 = parseOptionalTime(parts[4].trim());
 
                 LocalDate eventDate2 = LocalDate.parse(parts[5].trim());
-                LocalTime eventTime2 = null;
-                String savedTime2 = parts[6].trim();
-                if (!savedTime2.isEmpty()) {
-                    eventTime2 = LocalTime.parse(savedTime2, DateTimeFormat.INPUT_TIME.getFormatter());
-                }
+                LocalTime eventTime2 = parseOptionalTime(parts[6].trim());
 
-                task = new Event(parts[2].trim(), isDone, eventDate1, eventTime1, eventDate2, eventTime2);
+                task = new Event(taskDescription, isDone, eventDate1, eventTime1, eventDate2, eventTime2);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid task type in save file.");
@@ -143,5 +132,19 @@ public class Storage {
         return "E | " + status + " | " + task.getDescription()
                 + " | " + event.getStartDate() + " | " + savedTime1
                 + " | " + event.getEndDate() + " | " + savedTime2;
+    }
+
+    /**
+     * Parses an optional saved time.
+     *
+     * @param savedTime saved time text, which may be empty.
+     * @return parsed time, or null if no time was saved.
+     */
+    private static LocalTime parseOptionalTime(String savedTime) {
+        if (!savedTime.isEmpty()) {
+            return LocalTime.parse(savedTime, DateTimeFormat.INPUT_TIME.getFormatter());
+        }
+
+        return null;
     }
 }

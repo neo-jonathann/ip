@@ -24,7 +24,14 @@ public class DialogBox extends HBox {
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image img) {
+
+    /**
+     * Creates a dialog box displaying the specified text and image.
+     *
+     * @param text text to display in the dialog box.
+     * @param image image representing the message sender.
+     */
+    private DialogBox(String text, Image image) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
@@ -35,7 +42,7 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(text);
-        displayPicture.setImage(img);
+        displayPicture.setImage(image);
     }
 
     /**
@@ -49,13 +56,27 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
-    public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
+    /**
+     * Returns a dialog box displaying a user message.
+     *
+     * @param text message to display.
+     * @param image image representing the user.
+     * @return dialog box for the user.
+     */
+    public static DialogBox getUserDialog(String text, Image image) {
+        return new DialogBox(text, image);
     }
 
-    public static DialogBox getMondayDialog(String text, Image img) {
-        var db = new DialogBox(text, img);
-        db.flip();
-        return db;
+    /**
+     * Returns a dialog box displaying Monday's message.
+     *
+     * @param text message from Monday.
+     * @param image image of Monday.
+     * @return dialog box for Monday.
+     */
+    public static DialogBox getMondayDialog(String text, Image image) {
+        DialogBox dialogBox = new DialogBox(text, image);
+        dialogBox.flip();
+        return dialogBox;
     }
 }
