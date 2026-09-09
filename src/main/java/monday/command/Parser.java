@@ -195,11 +195,7 @@ public class Parser {
 
         try {
             LocalDate date = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
-            LocalTime time = null;
-            if (dateTimeParts.length == 2) {
-                time = LocalTime.parse(dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
-            }
-
+            LocalTime time = parseOptionalTime(dateTimeParts);
             tasks.add(new Deadline(description, date, time));
             Storage.saveTask(tasks);
             showAddedTask(tasks, ui);
@@ -255,12 +251,10 @@ public class Parser {
         }
 
         try {
-            LocalDate startDate = LocalDate.parse(
-                    startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalDate startDate = LocalDate.parse(startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime startTime = parseOptionalTime(startParts);
 
-            LocalDate endDate = LocalDate.parse(
-                    endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
+            LocalDate endDate = LocalDate.parse(endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime endTime = parseOptionalTime(endParts);
 
             tasks.add(new Event(description, startDate, startTime, endDate, endTime));
@@ -269,6 +263,27 @@ public class Parser {
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
         }
+    }
+
+    /**
+     * Finds and displays tasks whose descriptions contain a keyword.
+     * Users should enter the command in the following format:
+     * {@code find <keyword>}
+     *
+     * @param command command containing the keyword
+     * @param tasks task list to search
+     * @param ui user interface used to display the matching tasks
+     * @throws MondayException if the keyword is missing
+     */
+    private void findTask(String command, TaskList tasks, Ui ui) throws MondayException {
+        String keyword = command.substring("find".length()).trim();
+
+        if (keyword.isEmpty()) {
+            throw new MondayException("Please tell me what to find.");
+        }
+
+        TaskList matchingTasks = tasks.find(keyword);
+        ui.showMatchingTaskList(matchingTasks);
     }
 
     /**
@@ -315,8 +330,7 @@ public class Parser {
             return null;
         }
 
-        return LocalTime.parse(
-                dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
+        return LocalTime.parse(dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
     }
 
     /**
@@ -329,26 +343,5 @@ public class Parser {
         ui.showResponse("Got it. I've added this task:",
                 "  " + tasks.get(tasks.size() - 1),
                 "Now you have " + tasks.size() + " tasks in the list.");
-    }
-
-    /**
-     * Finds and displays tasks whose descriptions contain a keyword.
-     * Users should enter the command in the following format:
-     * {@code find <keyword>}
-     *
-     * @param command command containing the keyword
-     * @param tasks task list to search
-     * @param ui user interface used to display the matching tasks
-     * @throws MondayException if the keyword is missing
-     */
-    private void findTask(String command, TaskList tasks, Ui ui) throws MondayException {
-        String keyword = command.substring("find".length()).trim();
-
-        if (keyword.isEmpty()) {
-            throw new MondayException("Please tell me what to find.");
-        }
-
-        TaskList matchingTasks = tasks.find(keyword);
-        ui.showMatchingTaskList(matchingTasks);
     }
 }

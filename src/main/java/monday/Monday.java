@@ -10,9 +10,9 @@ import monday.ui.Ui;
  * Runs the Monday task-management chatbot.
  */
 public class Monday {
-    TaskList tasks;
-    Ui ui;
-    Parser parser;
+    private TaskList tasks;
+    private Ui ui;
+    private Parser parser;
     private boolean isRunning = true;
 
     public Monday() {
@@ -22,30 +22,7 @@ public class Monday {
     }
 
     /**
-     * Starts the chatbot and processes commands until the user exits.
-     *
-     * @param args command-line arguments, which are not used.
-     */
-    public static void main(String[] args) {
-        TaskList tasks = new TaskList(Storage.loadTask());
-        Ui ui = new Ui();
-        ui.showWelcome();
-        Parser parser = new Parser();
-        while (true) {
-            try {
-                String command = ui.readCommand();
-                if (!parser.executeCommand(command, tasks, ui)) {
-                    break;
-                }
-
-            } catch (MondayException e) {
-                ui.showResponse(e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Returns a response in String format
+     * Returns a response from Monday in String format given a user input.
      */
     public String getResponse(String input) {
         try {
@@ -71,5 +48,28 @@ public class Monday {
      */
     public boolean isRunning() {
         return isRunning;
+    }
+
+    /**
+     * Starts the chatbot and processes commands until the user exits.
+     *
+     * @param args command-line arguments, which are not used.
+     */
+    public static void main(String[] args) {
+        TaskList tasks = new TaskList(Storage.loadTask());
+        Ui ui = new Ui();
+        ui.showWelcome();
+        Parser parser = new Parser();
+        while (true) {
+            try {
+                String command = ui.readCommand();
+                if (!parser.executeCommand(command, tasks, ui)) {
+                    break;
+                }
+
+            } catch (MondayException e) {
+                ui.showResponse(e.getMessage());
+            }
+        }
     }
 }
