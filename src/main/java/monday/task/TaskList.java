@@ -3,6 +3,7 @@ package monday.task;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Stores and provides operations on Monday's tasks.
@@ -14,7 +15,7 @@ public class TaskList implements Iterable<Task> {
      * Creates an empty task list.
      */
     public TaskList() {
-        tasks = new ArrayList<>();
+        this.tasks = new ArrayList<>();
     }
 
     /**
@@ -32,7 +33,7 @@ public class TaskList implements Iterable<Task> {
      * @param task task to add.
      */
     public void add(Task task) {
-        tasks.add(task);
+        this.tasks.add(task);
     }
 
     /**
@@ -42,7 +43,7 @@ public class TaskList implements Iterable<Task> {
      * @return the task at the given index.
      */
     public Task get(int index) {
-        return tasks.get(index);
+        return this.tasks.get(index);
     }
 
     /**
@@ -52,7 +53,7 @@ public class TaskList implements Iterable<Task> {
      * @return the removed task.
      */
     public Task remove(int index) {
-        return tasks.remove(index);
+        return this.tasks.remove(index);
     }
 
     /**
@@ -61,7 +62,7 @@ public class TaskList implements Iterable<Task> {
      * @return number of tasks.
      */
     public int size() {
-        return tasks.size();
+        return this.tasks.size();
     }
 
     /**
@@ -71,7 +72,7 @@ public class TaskList implements Iterable<Task> {
      */
     @Override
     public Iterator<Task> iterator() {
-        return tasks.iterator();
+        return this.tasks.iterator();
     }
 
     /**
@@ -81,15 +82,10 @@ public class TaskList implements Iterable<Task> {
      * @return task list containing the matching tasks
      */
     public TaskList find(String keyword) {
-        ArrayList<Task> matchingTasks = new ArrayList<>();
-        String lowerCaseKeyword = keyword.toLowerCase(Locale.ROOT);
-
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase(Locale.ROOT).contains(lowerCaseKeyword)) {
-                matchingTasks.add(task);
-            }
-        }
-
-        return new TaskList(matchingTasks);
+        return new TaskList(this.tasks.stream()
+                .filter(task -> task.getDescription()
+                        .toLowerCase(Locale.ROOT)
+                        .contains(keyword.toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toCollection(ArrayList::new)));
     }
 }
