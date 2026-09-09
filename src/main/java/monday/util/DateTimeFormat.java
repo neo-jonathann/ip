@@ -29,6 +29,6 @@ public enum DateTimeFormat {
      * @return the date or time formatter.
      */
     public DateTimeFormatter getFormatter() {
-        return formatter;
+        return this.formatter;
     }
 }

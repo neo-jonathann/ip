@@ -20,6 +20,15 @@ public class Ui {
     }
 
     /**
+     * Return's Monday's most recently stored response.
+     *
+     * @return the latest response text.
+     */
+    public String getResponse() {
+        return this.response;
+    }
+
+    /**
      * Displays the welcome message when Monday starts.
      */
     public void showWelcome() {
@@ -35,7 +44,7 @@ public class Ui {
         System.out.println(banner);
 
         String bannerForGui = "Hello! My name is Monday.\n How can I help you today?";
-        response = bannerForGui;
+        this.response = bannerForGui;
     }
 
     /**
@@ -44,7 +53,7 @@ public class Ui {
      * @return the command entered by the user.
      */
     public String readCommand() {
-        return scanner.nextLine();
+        return this.scanner.nextLine();
     }
 
     /**
@@ -93,14 +102,5 @@ public class Ui {
         }
 
         showResponse(response.toString());
-    }
-
-    /**
-     * Return's Monday's most recently stored response.
-     *
-     * @return the latest response text.
-     */
-    public String getResponse() {
-        return response;
     }
 }
