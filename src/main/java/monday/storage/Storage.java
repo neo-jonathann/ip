@@ -121,6 +121,7 @@ public class Storage {
                     + " | " + deadline.getDeadlineDate() + " | " + savedTime;
         }
 
+        assert task instanceof Event : "The task is not declared as a Todo, Deadline, or Event task.";
         Event event = (Event) task;
         String savedTime1 = event.getStartTime() == null
                 ? ""

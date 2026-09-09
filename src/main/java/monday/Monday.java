@@ -27,7 +27,9 @@ public class Monday {
     public String getResponse(String input) {
         try {
             isRunning = parser.executeCommand(input, tasks, ui);
-            return ui.getResponse();
+            String response = ui.getResponse();
+            assert response != null : "There needs to be a response from the bot!";
+            return response;
         } catch (MondayException e) {
             return e.getMessage();
         }

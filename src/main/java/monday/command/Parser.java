@@ -340,6 +340,8 @@ public class Parser {
      * @param ui user interface used to display the result.
      */
     private void showAddedTask(TaskList tasks, Ui ui) {
+        assert tasks.size() > 0 : "There are currently no tasks in the list. There must at least be one task.";
+
         ui.showResponse("Got it. I've added this task:",
                 "  " + tasks.get(tasks.size() - 1),
                 "Now you have " + tasks.size() + " tasks in the list.");
