@@ -15,6 +15,9 @@ public class Monday {
     private Parser parser;
     private boolean isRunning = true;
 
+    /**
+     * Creates a Monday chatbot with the saved tasks and required collaborators.
+     */
     public Monday() {
         tasks = new TaskList(Storage.loadTask());
         ui = new Ui();
