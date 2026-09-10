@@ -151,9 +151,13 @@ public class Parser {
     private void addTodo(String command, TaskList tasks, Ui ui) throws MondayException {
         String description = command
                 .substring(command.indexOf("todo") + "todo".length(), command.indexOf("/notes")).trim();
-        String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
+        }
+
+        String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
+        if (notes.isEmpty()) {
+            throw new MondayException("Please tell me your notes.");
         }
 
         tasks.add(new Todo(description, notes));
@@ -197,6 +201,9 @@ public class Parser {
         }
 
         String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
+        if (notes.isEmpty()) {
+            throw new MondayException("Please tell me your notes.");
+        }
 
         try {
             LocalDate date = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
@@ -256,6 +263,9 @@ public class Parser {
         }
 
         String notes = command.substring(command.indexOf("/notes") + "/notes".length()).trim();
+        if (notes.isEmpty()) {
+            throw new MondayException("Please tell me your notes.");
+        }
 
         try {
             LocalDate startDate = LocalDate.parse(startParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
