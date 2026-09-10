@@ -31,14 +31,24 @@ public class Task {
         return isDone;
     }
 
+    /**
+     * Returns an 'X' or " " if the task is completed or not completed, respectively.
+     *
+     */
     public String getStatusIcon() {
-        return (isDone ? "X" : " "); // mark done task with X
+        return (isDone ? "X" : " ");
     }
 
+    /**
+     * Marks a task as completed.
+     */
     public void markAsDone() {
         isDone = true;
     }
 
+    /**
+     * Marks a task as no completed.
+     */
     public void markAsNotDone() {
         isDone = false;
     }

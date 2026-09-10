@@ -80,7 +80,7 @@ public class Parser {
     /**
      * Marks a specified task as completed.
      * Users should enter the command in the following format:
-     * {@code mark <task number>}
+     * {@code mark <task number>}.
      *
      * @param command command containing the task number.
      * @param tasks task list containing the task.
@@ -100,7 +100,7 @@ public class Parser {
     /**
      * Marks a specified task as not completed.
      * Users should enter the command in the following format:
-     * {@code unmark <task number>}
+     * {@code unmark <task number>}.
      *
      * @param command command containing the task number.
      * @param tasks task list containing the task.
@@ -120,7 +120,7 @@ public class Parser {
     /**
      * Removes a specified task from the task list.
      * Users should enter the command in the following format:
-     * {@code delete <task number>}
+     * {@code delete <task number>}.
      *
      * @param command command containing the task number.
      * @param tasks task list containing the task.
@@ -141,7 +141,7 @@ public class Parser {
     /**
      * Adds a todo task to the task list.
      * Users should enter the command in the following format:
-     * {@code todo <description>}
+     * {@code todo <description>}.
      *
      * @param command command containing the todo description.
      * @param tasks task list to update.
@@ -162,7 +162,7 @@ public class Parser {
     /**
      * Adds a deadline task to the task list.
      * Users should enter the command in the following format:
-     * {@code deadline <description> /by <deadline>}
+     * {@code deadline <description> /by <deadline>}.
      *
      * @param command command containing the deadline details.
      * @param tasks task list to update.
@@ -207,7 +207,7 @@ public class Parser {
     /**
      * Adds an event task to the task list.
      * Users should enter the command in the following format:
-     * {@code event <description> /from <start time> /to <end time>}
+     * {@code event <description> /from <start time> /to <end time>}.
      *
      * @param command command containing the event details.
      * @param tasks task list to update.
@@ -268,7 +268,7 @@ public class Parser {
     /**
      * Finds and displays tasks whose descriptions contain a keyword.
      * Users should enter the command in the following format:
-     * {@code find <keyword>}
+     * {@code find <keyword>}.
      *
      * @param command command containing the keyword
      * @param tasks task list to search
