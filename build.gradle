@@ -42,7 +42,18 @@ dependencies {
     implementation("org.openjfx:javafx-graphics:${javaFxVersion}:linux")
 }
 
+File testWorkingDirectory = layout.buildDirectory
+        .dir("test-workspace")
+        .get()
+        .asFile
+
 test {
+    doFirst {
+        testWorkingDirectory.mkdirs()
+    }
+
+    workingDir = testWorkingDirectory
+
     useJUnitPlatform()
 
     testLogging {
