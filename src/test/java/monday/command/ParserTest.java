@@ -236,6 +236,33 @@ class ParserTest {
     }
 
     @Test
+    void executeCommand_eventCommandWithInvalidRange_throwsMondayException() {
+        assertInvalidCommand("event meeting /from 11/09/2026 /to 10/09/2026",
+                "The event end must be after its start.");
+        assertInvalidCommand("event meeting /from 10/09/2026 1700 /to 10/09/2026 0900",
+                "The event end must be after its start.");
+        assertInvalidCommand("event meeting /from 10/09/2026 /to 10/09/2026",
+                "The event end must be after its start.");
+    }
+
+    @Test
+    void executeCommand_repeatedDirectiveOrStorageDelimiter_throwsMondayException() {
+        assertInvalidCommand("deadline submit report /by 30/08/2026 /by 31/08/2026",
+                "Please specify '/by' only once.");
+        assertInvalidCommand("event meeting /from 10/09/2026 /from 11/09/2026 /to 12/09/2026",
+                "Please specify '/from' and '/to' only once each.");
+        assertInvalidCommand("todo buy | milk", "Task descriptions cannot contain '|', newlines, or carriage returns.");
+    }
+
+    @Test
+    void executeCommand_commandWithSurroundingWhitespace_isAccepted() throws MondayException {
+        boolean shouldContinue = parser.executeCommand("  todo\tbuy milk  ", tasks, ui);
+
+        assertTrue(shouldContinue);
+        assertEquals("buy milk", tasks.get(0).getDescription());
+    }
+
+    @Test
     void executeCommand_taskCommandWithMissingNumber_throwsMondayException() {
         assertInvalidCommand("mark", "Please tell me which task number to mark.");
         assertInvalidCommand("unmark", "Please tell me which task number to unmark.");

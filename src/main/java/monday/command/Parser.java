@@ -28,6 +28,11 @@ public class Parser {
      * @throws MondayException if the command is invalid.
      */
     public boolean executeCommand(String command, TaskList tasks, Ui ui) throws MondayException {
+        if (command == null) {
+            throw new MondayException("Please enter a command.");
+        }
+
+        command = command.trim();
         if (command.equals("bye")) {
             Storage.saveTask(tasks);
             ui.showResponse("Bye. Hope to see you again soon!");
@@ -39,37 +44,37 @@ public class Parser {
             return true;
         }
 
-        if (command.equals("mark") || command.startsWith("mark ")) {
+        if (hasCommandWord(command, "mark")) {
             markTask(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("unmark") || command.startsWith("unmark ")) {
+        if (hasCommandWord(command, "unmark")) {
             unmarkTask(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("delete") || command.startsWith("delete ")) {
+        if (hasCommandWord(command, "delete")) {
             deleteTask(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("todo") || command.startsWith("todo ")) {
+        if (hasCommandWord(command, "todo")) {
             addTodo(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("deadline") || command.startsWith("deadline ")) {
+        if (hasCommandWord(command, "deadline")) {
             addDeadline(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("event") || command.startsWith("event ")) {
+        if (hasCommandWord(command, "event")) {
             addEvent(command, tasks, ui);
             return true;
         }
 
-        if (command.equals("find") || command.startsWith("find ")) {
+        if (hasCommandWord(command, "find")) {
             findTask(command, tasks, ui);
             return true;
         }
@@ -92,8 +97,15 @@ public class Parser {
                 "Please tell me which task number to mark.",
                 "Please tell me a valid task number to mark.");
 
-        tasks.get(index).markAsDone();
-        Storage.saveTask(tasks);
+        Task task = tasks.get(index);
+        boolean wasDone = task.isDone();
+        task.markAsDone();
+        try {
+            Storage.saveTask(tasks);
+        } catch (MondayException e) {
+            restoreCompletionStatus(task, wasDone);
+            throw e;
+        }
         ui.showResponse("Nice! I've marked this task as done:", "  " + tasks.get(index));
     }
 
@@ -112,8 +124,15 @@ public class Parser {
                 "Please tell me which task number to unmark.",
                 "Please tell me a valid task number to unmark.");
 
-        tasks.get(index).markAsNotDone();
-        Storage.saveTask(tasks);
+        Task task = tasks.get(index);
+        boolean wasDone = task.isDone();
+        task.markAsNotDone();
+        try {
+            Storage.saveTask(tasks);
+        } catch (MondayException e) {
+            restoreCompletionStatus(task, wasDone);
+            throw e;
+        }
         ui.showResponse("OK, I've marked this task as not done yet:", "  " + tasks.get(index));
     }
 
@@ -133,7 +152,12 @@ public class Parser {
                 "Please tell me a valid task number to delete.");
 
         Task deletedTask = tasks.remove(index);
-        Storage.saveTask(tasks);
+        try {
+            Storage.saveTask(tasks);
+        } catch (MondayException e) {
+            tasks.add(index, deletedTask);
+            throw e;
+        }
         ui.showResponse("Noted. I've removed this task:", "  " + deletedTask,
                 "Now you have " + tasks.size() + " tasks in the list.");
     }
@@ -154,8 +178,8 @@ public class Parser {
             throw new MondayException("Please tell me your todo task.");
         }
 
-        tasks.add(new Todo(description));
-        Storage.saveTask(tasks);
+        validateDescription(description);
+        addTask(new Todo(description), tasks);
         showAddedTask(tasks, ui);
     }
 
@@ -174,16 +198,22 @@ public class Parser {
             throw new MondayException("Please tell me your task.");
         }
 
-        if (!command.contains("/by")) {
+        int byIndex = findDirective(command, "/by");
+        if (byIndex == -1) {
             throw new MondayException("Please use the '/by' command.");
         }
 
-        String description = command.substring("deadline ".length(), command.indexOf("/by")).trim();
+        if (findDirective(command.substring(byIndex + "/by".length()), "/by") != -1) {
+            throw new MondayException("Please specify '/by' only once.");
+        }
+
+        String description = command.substring("deadline".length(), byIndex).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your task.");
         }
+        validateDescription(description);
 
-        String deadline = command.substring(command.indexOf("/by") + "/by".length()).trim();
+        String deadline = command.substring(byIndex + "/by".length()).trim();
         if (deadline.isEmpty()) {
             throw new MondayException("Please tell me your deadline.");
         }
@@ -196,8 +226,7 @@ public class Parser {
         try {
             LocalDate date = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime time = parseOptionalTime(dateTimeParts);
-            tasks.add(new Deadline(description, date, time));
-            Storage.saveTask(tasks);
+            addTask(new Deadline(description, date, time), tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
@@ -219,27 +248,34 @@ public class Parser {
             throw new MondayException("Please tell me your task.");
         }
 
-        if (!command.contains("/from") || !command.contains("/to")) {
+        int fromIndex = findDirective(command, "/from");
+        int toIndex = findDirective(command, "/to");
+        if (fromIndex == -1 || toIndex == -1) {
             throw new MondayException("Please use the '/from' and '/to' commands.");
         }
 
-        if (command.indexOf("/from") > command.indexOf("/to")) {
+        if (findDirective(command.substring(fromIndex + "/from".length()), "/from") != -1
+                || findDirective(command.substring(toIndex + "/to".length()), "/to") != -1) {
+            throw new MondayException("Please specify '/from' and '/to' only once each.");
+        }
+
+        if (fromIndex > toIndex) {
             throw new MondayException("The '/from' command needs to come before the '/to' command.");
         }
 
-        String description = command.substring("event ".length(), command.indexOf("/from")).trim();
+        String description = command.substring("event".length(), fromIndex).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your task.");
         }
+        validateDescription(description);
 
         String startPeriod = command
-                .substring(command.indexOf("/from") + "/from".length(), command.indexOf("/to")).trim();
+                .substring(fromIndex + "/from".length(), toIndex).trim();
         if (startPeriod.isEmpty()) {
             throw new MondayException("Please tell me your start time.");
         }
 
-        String endPeriod = command
-                .substring(command.indexOf("/to") + "/to".length()).trim();
+        String endPeriod = command.substring(toIndex + "/to".length()).trim();
         if (endPeriod.isEmpty()) {
             throw new MondayException("Please tell me your end time.");
         }
@@ -257,8 +293,8 @@ public class Parser {
             LocalDate endDate = LocalDate.parse(endParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime endTime = parseOptionalTime(endParts);
 
-            tasks.add(new Event(description, startDate, startTime, endDate, endTime));
-            Storage.saveTask(tasks);
+            validateEventRange(startDate, startTime, endDate, endTime);
+            addTask(new Event(description, startDate, startTime, endDate, endTime), tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
@@ -331,6 +367,81 @@ public class Parser {
         }
 
         return LocalTime.parse(dateTimeParts[1], DateTimeFormat.INPUT_TIME.getFormatter());
+    }
+
+    /**
+     * Returns whether a command begins with the supplied command word.
+     */
+    private boolean hasCommandWord(String command, String commandWord) {
+        return command.equals(commandWord)
+                || (command.startsWith(commandWord)
+                && command.length() > commandWord.length()
+                && Character.isWhitespace(command.charAt(commandWord.length())));
+    }
+
+    /**
+     * Returns the index of a standalone command directive, or -1 if it is absent.
+     */
+    private int findDirective(String command, String directive) {
+        int index = command.indexOf(directive);
+        while (index != -1) {
+            int afterDirective = index + directive.length();
+            boolean startsAfterWhitespace = index == 0 || Character.isWhitespace(command.charAt(index - 1));
+            boolean endsBeforeWhitespace = afterDirective == command.length()
+                    || Character.isWhitespace(command.charAt(afterDirective));
+            if (startsAfterWhitespace && endsBeforeWhitespace) {
+                return index;
+            }
+            index = command.indexOf(directive, afterDirective);
+        }
+        return -1;
+    }
+
+    /**
+     * Rejects description characters that cannot be represented by the save format.
+     */
+    private void validateDescription(String description) throws MondayException {
+        if (description.contains("|") || description.contains("\n") || description.contains("\r")) {
+            throw new MondayException("Task descriptions cannot contain '|', newlines, or carriage returns.");
+        }
+    }
+
+    /**
+     * Adds and persists a new task, undoing the addition if persistence fails.
+     */
+    private void addTask(Task task, TaskList tasks) throws MondayException {
+        tasks.add(task);
+        try {
+            Storage.saveTask(tasks);
+        } catch (MondayException e) {
+            tasks.remove(tasks.size() - 1);
+            throw e;
+        }
+    }
+
+    /**
+     * Restores a task's completion status after a failed save operation.
+     */
+    private void restoreCompletionStatus(Task task, boolean wasDone) {
+        if (wasDone) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
+    }
+
+    /**
+     * Validates that an event's end is strictly after its start.
+     */
+    private void validateEventRange(LocalDate startDate, LocalTime startTime,
+            LocalDate endDate, LocalTime endTime) throws MondayException {
+        LocalTime effectiveStartTime = startTime == null ? LocalTime.MIN : startTime;
+        LocalTime effectiveEndTime = endTime == null ? LocalTime.MIN : endTime;
+        boolean endsBeforeStart = endDate.isBefore(startDate)
+                || (endDate.equals(startDate) && !effectiveEndTime.isAfter(effectiveStartTime));
+        if (endsBeforeStart) {
+            throw new MondayException("The event end must be after its start.");
+        }
     }
 
     /**

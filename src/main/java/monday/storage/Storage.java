@@ -1,13 +1,16 @@
 package monday.storage;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import monday.exception.MondayException;
 import monday.task.Deadline;
 import monday.task.Event;
 import monday.task.Task;
@@ -34,9 +37,14 @@ public class Storage {
         try {
             List<String> lines = Files.readAllLines(FILE_PATH);
 
-            for (String line : lines) {
+            for (int index = 0; index < lines.size(); index++) {
+                String line = lines.get(index);
                 if (!line.isBlank()) {
-                    tasks.add(createTask(line));
+                    try {
+                        tasks.add(createTask(line));
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Ignoring invalid task on line " + (index + 1) + " of the save file.");
+                    }
                 }
             }
         } catch (IOException e) {
@@ -51,7 +59,7 @@ public class Storage {
      *
      * @param tasks task list to save.
      */
-    public static void saveTask(TaskList tasks) {
+    public static void saveTask(TaskList tasks) throws MondayException {
         ArrayList<String> savedTasks = new ArrayList<>();
 
         for (Task task : tasks) {
@@ -60,9 +68,30 @@ public class Storage {
 
         try {
             Files.createDirectories(FILE_PATH.getParent());
-            Files.write(FILE_PATH, savedTasks);
+            Path temporaryFile = Files.createTempFile(FILE_PATH.getParent(), "monday-", ".tmp");
+            try {
+                Files.write(temporaryFile, savedTasks);
+                moveIntoPlace(temporaryFile);
+            } finally {
+                Files.deleteIfExists(temporaryFile);
+            }
         } catch (IOException e) {
-            System.out.println("Sorry, I could not save your tasks.");
+            throw new MondayException("Sorry, I could not save your tasks. Your change was not applied.");
+        }
+    }
+
+    /**
+     * Replaces the save file with a fully written temporary file.
+     *
+     * @param temporaryFile file containing the complete replacement contents.
+     * @throws IOException if the replacement cannot be completed.
+     */
+    private static void moveIntoPlace(Path temporaryFile) throws IOException {
+        try {
+            Files.move(temporaryFile, FILE_PATH, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temporaryFile, FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
@@ -70,12 +99,15 @@ public class Storage {
      * Converts one saved line into the appropriate Task object.
      */
     private static Task createTask(String line) {
-        String[] parts = line.split("\\|", -1);
-
-        String taskType = parts[0].trim();
-        boolean isDone = parts[1].trim().equals("1");
-        String taskDescription = parts[2].trim();
         Task task;
+        String[] parts = line.split("\\|", -1);
+        String taskType = parts[0].trim();
+        validatePartCount(taskType, parts);
+        boolean isDone = parseCompletionStatus(parts[1].trim());
+        String taskDescription = parts[2].trim();
+        if (taskDescription.isEmpty()) {
+            throw new IllegalArgumentException("Task description cannot be empty.");
+        }
 
         switch (taskType) {
             case "T":
@@ -93,6 +125,7 @@ public class Storage {
                 LocalDate eventDate2 = LocalDate.parse(parts[5].trim());
                 LocalTime eventTime2 = parseOptionalTime(parts[6].trim());
 
+                validateEventRange(eventDate1, eventTime1, eventDate2, eventTime2);
                 task = new Event(taskDescription, isDone, eventDate1, eventTime1, eventDate2, eventTime2);
                 break;
             default:
@@ -100,6 +133,56 @@ public class Storage {
         }
 
         return task;
+    }
+
+    /**
+     * Validates that a saved task type has its expected number of fields.
+     */
+    private static void validatePartCount(String taskType, String[] parts) {
+        int expectedPartCount;
+        switch (taskType) {
+            case "T":
+                expectedPartCount = 3;
+                break;
+            case "D":
+                expectedPartCount = 5;
+                break;
+            case "E":
+                expectedPartCount = 7;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid task type in save file.");
+        }
+
+        if (parts.length != expectedPartCount) {
+            throw new IllegalArgumentException("Incorrect number of fields in save file.");
+        }
+    }
+
+    /**
+     * Converts a saved completion value to a boolean after validating it.
+     */
+    private static boolean parseCompletionStatus(String status) {
+        if (status.equals("1")) {
+            return true;
+        }
+        if (status.equals("0")) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid completion status in save file.");
+    }
+
+    /**
+     * Validates that an event's end is after its start.
+     */
+    private static void validateEventRange(LocalDate startDate, LocalTime startTime,
+            LocalDate endDate, LocalTime endTime) {
+        LocalTime effectiveStartTime = (startTime == null) ? LocalTime.MIN : startTime;
+        LocalTime effectiveEndTime = (endTime == null) ? LocalTime.MIN : endTime;
+        if (endDate.isBefore(startDate)
+                || (endDate.equals(startDate) && !effectiveEndTime.isAfter(effectiveStartTime))) {
+            throw new IllegalArgumentException("Event end must be after its start.");
+        }
     }
 
     /**

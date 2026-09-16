@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import monday.exception.MondayException;
 import monday.task.Deadline;
 import monday.task.Event;
 import monday.task.Task;
@@ -48,7 +49,7 @@ class StorageTest {
     }
 
     @Test
-    void saveTask_withEmptyList_writesEmptySaveFile() throws IOException {
+    void saveTask_withEmptyList_writesEmptySaveFile() throws IOException, MondayException {
         Storage.saveTask(new TaskList());
 
         assertTrue(Files.exists(DATA_FILE));
@@ -56,7 +57,7 @@ class StorageTest {
     }
 
     @Test
-    void saveTask_withTasks_writesExpectedFileFormat() throws IOException {
+    void saveTask_withTasks_writesExpectedFileFormat() throws IOException, MondayException {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("buy milk"));
         tasks.add(new Deadline("submit report", true, LocalDate.of(2026, 8, 30), LocalTime.of(14, 30)));
@@ -121,5 +122,22 @@ class StorageTest {
         assertNull(eventWithStartTimeOmitted.getStartTime());
         assertEquals(LocalDate.of(2026, 10, 1), eventWithStartTimeOmitted.getEndDate());
         assertEquals(LocalTime.of(18, 0), eventWithStartTimeOmitted.getEndTime());
+    }
+
+    @Test
+    void loadTask_withInvalidSavedRows_skipsInvalidRows() throws IOException {
+        Files.createDirectories(DATA_FILE.getParent());
+        Files.write(DATA_FILE, List.of(
+                "T | 0 | buy milk",
+                "D | 0 | incomplete deadline",
+                "T | 2 | invalid status",
+                "E | 0 | invalid event | 2026-09-11 | 0900 | 2026-09-10 | 1000",
+                "X | 0 | unknown task"
+        ));
+
+        ArrayList<Task> loadedTasks = Storage.loadTask();
+
+        assertEquals(1, loadedTasks.size());
+        assertEquals("buy milk", loadedTasks.get(0).getDescription());
     }
 }
