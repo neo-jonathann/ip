@@ -269,8 +269,7 @@ public class Parser {
         }
         validateDescription(description);
 
-        String startPeriod = command
-                .substring(fromIndex + "/from".length(), toIndex).trim();
+        String startPeriod = command.substring(fromIndex + "/from".length(), toIndex).trim();
         if (startPeriod.isEmpty()) {
             throw new MondayException("Please tell me your start time.");
         }

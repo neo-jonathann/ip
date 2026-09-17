@@ -34,21 +34,27 @@ public class Storage {
             return tasks;
         }
 
-        try {
-            List<String> lines = Files.readAllLines(FILE_PATH);
+        List<String> lines;
 
-            for (int index = 0; index < lines.size(); index++) {
-                String line = lines.get(index);
-                if (!line.isBlank()) {
-                    try {
-                        tasks.add(createTask(line));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("Ignoring invalid task on line " + (index + 1) + " of the save file.");
-                    }
-                }
-            }
+        try {
+            lines = Files.readAllLines(FILE_PATH);
         } catch (IOException e) {
             System.out.println("Sorry, I could not load your tasks.");
+            return tasks;
+        }
+
+        for (int index = 0; index < lines.size(); index++) {
+            String line = lines.get(index);
+
+            if (line.isBlank()) {
+                continue;
+            }
+
+            try {
+                tasks.add(createTask(line));
+            } catch (IllegalArgumentException e) {
+                System.err.println("Ignoring invalid task on line " + (index + 1) + " of the save file.");
+            }
         }
 
         return tasks;
@@ -88,8 +94,7 @@ public class Storage {
      */
     private static void moveIntoPlace(Path temporaryFile) throws IOException {
         try {
-            Files.move(temporaryFile, FILE_PATH, StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temporaryFile, FILE_PATH, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(temporaryFile, FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         }
