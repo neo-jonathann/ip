@@ -6,21 +6,36 @@ package monday.task;
 public class Task {
     private final String description;
     private boolean isDone;
+    private final String notes;
 
     /**
      * Creates an incomplete task with the given description.
      */
     public Task(String description) {
-        this.description = description;
-        this.isDone = false;
+        this(description, false, "");
+    }
+
+    /**
+     * Creates an incomplete task with the given description and notes.
+     */
+    public Task(String description, String notes) {
+        this(description, false, notes);
     }
 
     /**
      * Creates a task with the given description and completion status.
      */
     public Task(String description, boolean isDone) {
+        this(description, isDone, "");
+    }
+
+    /**
+     * Creates a task with the given description, completion status, and notes.
+     */
+    public Task(String description, boolean isDone, String notes) {
         this.description = description;
         this.isDone = isDone;
+        this.notes = notes;
     }
 
     public String getDescription() {
@@ -29,6 +44,10 @@ public class Task {
 
     public boolean isDone() {
         return isDone;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 
     /**
@@ -55,6 +74,20 @@ public class Task {
 
     @Override
     public String toString() {
+        return formatTask() + formatNotes();
+    }
+
+    /**
+     * Formats the completion status and description shared by all task types.
+     */
+    protected String formatTask() {
         return "[" + getStatusIcon() + "] " + description;
+    }
+
+    /**
+     * Formats notes as an optional suffix for display.
+     */
+    protected String formatNotes() {
+        return notes.isEmpty() ? "" : " " + notes;
     }
 }

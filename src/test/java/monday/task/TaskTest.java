@@ -32,6 +32,14 @@ class TaskTest {
     }
 
     @Test
+    void constructor_withNotes_storesAndDisplaysNotes() {
+        Task task = new Task("read chapter", "Focus on inheritance");
+
+        assertEquals("Focus on inheritance", task.getNotes());
+        assertEquals("[ ] read chapter Focus on inheritance", task.toString());
+    }
+
+    @Test
     void markAsDone_marksIncompleteTask() {
         Task task = new Task("read chapter");
 

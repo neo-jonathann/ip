@@ -28,6 +28,14 @@ class TodoTest {
     }
 
     @Test
+    void constructor_withNotes_storesAndDisplaysNotes() {
+        Todo todo = new Todo("buy groceries", "Use the voucher");
+
+        assertEquals("Use the voucher", todo.getNotes());
+        assertEquals("[T][ ] buy groceries Use the voucher", todo.toString());
+    }
+
+    @Test
     void markAsDone_marksTodo() {
         Todo todo = new Todo("buy groceries");
 

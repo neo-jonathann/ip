@@ -19,11 +19,15 @@ public class Event extends Task {
      */
     public Event(String description, LocalDate startDate, LocalTime startTime,
             LocalDate endDate, LocalTime endTime) {
-        super(description);
-        this.startDate = startDate;
-        this.startTime = startTime;
-        this.endDate = endDate;
-        this.endTime = endTime;
+        this(description, false, startDate, startTime, endDate, endTime, "");
+    }
+
+    /**
+     * Creates an incomplete event task with the given schedule and notes.
+     */
+    public Event(String description, LocalDate startDate, LocalTime startTime,
+            LocalDate endDate, LocalTime endTime, String notes) {
+        this(description, false, startDate, startTime, endDate, endTime, notes);
     }
 
     /**
@@ -31,7 +35,15 @@ public class Event extends Task {
      */
     public Event(String description, boolean isDone, LocalDate startDate, LocalTime startTime,
             LocalDate endDate, LocalTime endTime) {
-        super(description, isDone);
+        this(description, isDone, startDate, startTime, endDate, endTime, "");
+    }
+
+    /**
+     * Creates an event task with the given schedule, completion status, and notes.
+     */
+    public Event(String description, boolean isDone, LocalDate startDate, LocalTime startTime,
+            LocalDate endDate, LocalTime endTime, String notes) {
+        super(description, isDone, notes);
         this.startDate = startDate;
         this.startTime = startTime;
         this.endDate = endDate;
@@ -56,9 +68,9 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString()
+        return "[E]" + formatTask()
                 + " (from: " + formatDateTime(startDate, startTime)
-                + " to: " + formatDateTime(endDate, endTime) + ")";
+                + " to: " + formatDateTime(endDate, endTime) + ")" + formatNotes();
     }
 
     /**

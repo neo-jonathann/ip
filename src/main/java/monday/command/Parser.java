@@ -165,7 +165,7 @@ public class Parser {
     /**
      * Adds a todo task to the task list.
      * Users should enter the command in the following format:
-     * {@code todo <description>}.
+     * {@code todo <description> /notes <notes>}.
      *
      * @param command command containing the todo description.
      * @param tasks task list to update.
@@ -173,20 +173,23 @@ public class Parser {
      * @throws MondayException if the description is missing.
      */
     private void addTodo(String command, TaskList tasks, Ui ui) throws MondayException {
-        String description = command.substring("todo".length()).trim();
+        int notesIndex = findNotesDirective(command);
+        int taskDetailsEnd = notesIndex == -1 ? command.length() : notesIndex;
+        String description = command.substring("todo".length(), taskDetailsEnd).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your todo task.");
         }
 
         validateDescription(description);
-        addTask(new Todo(description), tasks);
+        String notes = parseNotes(command, notesIndex);
+        addTask(new Todo(description, notes), tasks);
         showAddedTask(tasks, ui);
     }
 
     /**
      * Adds a deadline task to the task list.
      * Users should enter the command in the following format:
-     * {@code deadline <description> /by <deadline>}.
+     * {@code deadline <description> /by <deadline> /notes <notes>}.
      *
      * @param command command containing the deadline details.
      * @param tasks task list to update.
@@ -198,12 +201,16 @@ public class Parser {
             throw new MondayException("Please tell me your task.");
         }
 
-        int byIndex = findDirective(command, "/by");
+        int notesIndex = findNotesDirective(command);
+        int taskDetailsEnd = notesIndex == -1 ? command.length() : notesIndex;
+        String taskDetails = command.substring(0, taskDetailsEnd);
+
+        int byIndex = findDirective(taskDetails, "/by");
         if (byIndex == -1) {
             throw new MondayException("Please use the '/by' command.");
         }
 
-        if (findDirective(command.substring(byIndex + "/by".length()), "/by") != -1) {
+        if (findDirective(taskDetails.substring(byIndex + "/by".length()), "/by") != -1) {
             throw new MondayException("Please specify '/by' only once.");
         }
 
@@ -213,7 +220,7 @@ public class Parser {
         }
         validateDescription(description);
 
-        String deadline = command.substring(byIndex + "/by".length()).trim();
+        String deadline = taskDetails.substring(byIndex + "/by".length()).trim();
         if (deadline.isEmpty()) {
             throw new MondayException("Please tell me your deadline.");
         }
@@ -226,7 +233,8 @@ public class Parser {
         try {
             LocalDate date = LocalDate.parse(dateTimeParts[0], DateTimeFormat.INPUT_DATE.getFormatter());
             LocalTime time = parseOptionalTime(dateTimeParts);
-            addTask(new Deadline(description, date, time), tasks);
+            String notes = parseNotes(command, notesIndex);
+            addTask(new Deadline(description, date, time, notes), tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
@@ -236,7 +244,7 @@ public class Parser {
     /**
      * Adds an event task to the task list.
      * Users should enter the command in the following format:
-     * {@code event <description> /from <start time> /to <end time>}.
+     * {@code event <description> /from <start time> /to <end time> /notes <notes>}.
      *
      * @param command command containing the event details.
      * @param tasks task list to update.
@@ -248,14 +256,18 @@ public class Parser {
             throw new MondayException("Please tell me your task.");
         }
 
-        int fromIndex = findDirective(command, "/from");
-        int toIndex = findDirective(command, "/to");
+        int notesIndex = findNotesDirective(command);
+        int taskDetailsEnd = notesIndex == -1 ? command.length() : notesIndex;
+        String taskDetails = command.substring(0, taskDetailsEnd);
+
+        int fromIndex = findDirective(taskDetails, "/from");
+        int toIndex = findDirective(taskDetails, "/to");
         if (fromIndex == -1 || toIndex == -1) {
             throw new MondayException("Please use the '/from' and '/to' commands.");
         }
 
-        if (findDirective(command.substring(fromIndex + "/from".length()), "/from") != -1
-                || findDirective(command.substring(toIndex + "/to".length()), "/to") != -1) {
+        if (findDirective(taskDetails.substring(fromIndex + "/from".length()), "/from") != -1
+                || findDirective(taskDetails.substring(toIndex + "/to".length()), "/to") != -1) {
             throw new MondayException("Please specify '/from' and '/to' only once each.");
         }
 
@@ -263,18 +275,18 @@ public class Parser {
             throw new MondayException("The '/from' command needs to come before the '/to' command.");
         }
 
-        String description = command.substring("event".length(), fromIndex).trim();
+        String description = taskDetails.substring("event".length(), fromIndex).trim();
         if (description.isEmpty()) {
             throw new MondayException("Please tell me your task.");
         }
         validateDescription(description);
 
-        String startPeriod = command.substring(fromIndex + "/from".length(), toIndex).trim();
+        String startPeriod = taskDetails.substring(fromIndex + "/from".length(), toIndex).trim();
         if (startPeriod.isEmpty()) {
             throw new MondayException("Please tell me your start time.");
         }
 
-        String endPeriod = command.substring(toIndex + "/to".length()).trim();
+        String endPeriod = taskDetails.substring(toIndex + "/to".length()).trim();
         if (endPeriod.isEmpty()) {
             throw new MondayException("Please tell me your end time.");
         }
@@ -293,7 +305,8 @@ public class Parser {
             LocalTime endTime = parseOptionalTime(endParts);
 
             validateEventRange(startDate, startTime, endDate, endTime);
-            addTask(new Event(description, startDate, startTime, endDate, endTime), tasks);
+            String notes = parseNotes(command, notesIndex);
+            addTask(new Event(description, startDate, startTime, endDate, endTime, notes), tasks);
             showAddedTask(tasks, ui);
         } catch (DateTimeParseException e) {
             throw new MondayException("Please use the format dd/MM/yyyy or dd/MM/yyyy HHmm.");
@@ -397,11 +410,57 @@ public class Parser {
     }
 
     /**
+     * Returns the index of the optional notes directive after ensuring it occurs at most once.
+     *
+     * @param command command that may contain a notes directive.
+     * @return index of the notes directive, or -1 if notes were not supplied.
+     * @throws MondayException if the notes directive occurs more than once.
+     */
+    private int findNotesDirective(String command) throws MondayException {
+        int notesIndex = findDirective(command, "/notes");
+        if (notesIndex != -1
+                && findDirective(command.substring(notesIndex + "/notes".length()), "/notes") != -1) {
+            throw new MondayException("Please specify '/notes' only once.");
+        }
+        return notesIndex;
+    }
+
+    /**
+     * Extracts and validates notes from a command.
+     *
+     * @param command command containing the notes text.
+     * @param notesIndex index of the notes directive, or -1 if it is absent.
+     * @return validated notes, or an empty string if notes were not supplied.
+     * @throws MondayException if a notes directive has no text or uses unsupported characters.
+     */
+    private String parseNotes(String command, int notesIndex) throws MondayException {
+        if (notesIndex == -1) {
+            return "";
+        }
+
+        String notes = command.substring(notesIndex + "/notes".length()).trim();
+        if (notes.isEmpty()) {
+            throw new MondayException("Please tell me your notes.");
+        }
+        validateNotes(notes);
+        return notes;
+    }
+
+    /**
      * Rejects description characters that cannot be represented by the save format.
      */
     private void validateDescription(String description) throws MondayException {
         if (description.contains("|") || description.contains("\n") || description.contains("\r")) {
             throw new MondayException("Task descriptions cannot contain '|', newlines, or carriage returns.");
+        }
+    }
+
+    /**
+     * Rejects notes characters that cannot be represented by the save format.
+     */
+    private void validateNotes(String notes) throws MondayException {
+        if (notes.contains("|") || notes.contains("\n") || notes.contains("\r")) {
+            throw new MondayException("Task notes cannot contain '|', newlines, or carriage returns.");
         }
     }
 

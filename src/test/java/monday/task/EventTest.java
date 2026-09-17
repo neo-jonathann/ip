@@ -51,6 +51,16 @@ class EventTest {
     }
 
     @Test
+    void constructor_withNotes_storesAndDisplaysNotes() {
+        Event event = new Event("team retreat", LocalDate.of(2026, 8, 30), LocalTime.of(14, 30),
+                LocalDate.of(2026, 8, 31), LocalTime.of(16, 0), "Bring a jacket");
+
+        assertEquals("Bring a jacket", event.getNotes());
+        assertEquals("[E][ ] team retreat (from: 30 Aug 2026 1430 to: 31 Aug 2026 1600) Bring a jacket",
+                event.toString());
+    }
+
+    @Test
     void constructor_withOnlyStartTime_displaysStartTimeOnly() {
         Event event = new Event("team retreat", LocalDate.of(2026, 8, 30), LocalTime.of(14, 30),
                 LocalDate.of(2026, 8, 31), null);

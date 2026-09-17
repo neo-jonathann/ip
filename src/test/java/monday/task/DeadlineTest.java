@@ -54,6 +54,19 @@ class DeadlineTest {
     }
 
     @Test
+    void constructor_withNotes_storesAndDisplaysNotes() {
+        Deadline deadline = new Deadline(
+                "submit report",
+                LocalDate.of(2026, 8, 30),
+                LocalTime.of(14, 30),
+                "Attach the appendix");
+
+        assertEquals("Attach the appendix", deadline.getNotes());
+        assertEquals("[D][ ] submit report (by: 30 Aug 2026 1430) Attach the appendix",
+                deadline.toString());
+    }
+
+    @Test
     void markAsDone_marksDeadline() {
         Deadline deadline = new Deadline(
                 "submit report",

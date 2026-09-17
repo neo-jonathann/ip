@@ -62,6 +62,18 @@ class ParserTest {
     }
 
     @Test
+    void executeCommand_todoCommandWithNotes_addsTodoWithNotes() throws MondayException {
+        parser.executeCommand("todo buy milk /notes Use the voucher", tasks, ui);
+
+        Todo todo = assertInstanceOf(Todo.class, tasks.get(0));
+        assertEquals("buy milk", todo.getDescription());
+        assertEquals("Use the voucher", todo.getNotes());
+        assertEquals("Got it. I've added this task:\n"
+                + "  [T][ ] buy milk Use the voucher\n"
+                + "Now you have 1 tasks in the list.", ui.getResponse());
+    }
+
+    @Test
     void executeCommand_deadlineCommandWithTime_addsDeadline() throws MondayException {
         boolean shouldContinue = parser.executeCommand(
                 "deadline submit report /by 30/08/2026 1430", tasks, ui);
@@ -80,6 +92,15 @@ class ParserTest {
         Deadline deadline = assertInstanceOf(Deadline.class, tasks.get(0));
         assertEquals(LocalDate.of(2026, 9, 1), deadline.getDeadlineDate());
         assertNull(deadline.getDeadlineTime());
+    }
+
+    @Test
+    void executeCommand_deadlineCommandWithNotes_addsDeadlineWithNotes() throws MondayException {
+        parser.executeCommand(
+                "deadline submit report /by 30/08/2026 1430 /notes Attach the appendix", tasks, ui);
+
+        Deadline deadline = assertInstanceOf(Deadline.class, tasks.get(0));
+        assertEquals("Attach the appendix", deadline.getNotes());
     }
 
     @Test
@@ -104,6 +125,15 @@ class ParserTest {
         Event event = assertInstanceOf(Event.class, tasks.get(0));
         assertNull(event.getStartTime());
         assertNull(event.getEndTime());
+    }
+
+    @Test
+    void executeCommand_eventCommandWithNotes_addsEventWithNotes() throws MondayException {
+        parser.executeCommand(
+                "event team retreat /from 10/09/2026 /to 11/09/2026 /notes Bring a jacket", tasks, ui);
+
+        Event event = assertInstanceOf(Event.class, tasks.get(0));
+        assertEquals("Bring a jacket", event.getNotes());
     }
 
     @Test
@@ -252,6 +282,10 @@ class ParserTest {
         assertInvalidCommand("event meeting /from 10/09/2026 /from 11/09/2026 /to 12/09/2026",
                 "Please specify '/from' and '/to' only once each.");
         assertInvalidCommand("todo buy | milk", "Task descriptions cannot contain '|', newlines, or carriage returns.");
+        assertInvalidCommand("todo buy milk /notes first /notes second", "Please specify '/notes' only once.");
+        assertInvalidCommand("todo buy milk /notes", "Please tell me your notes.");
+        assertInvalidCommand("todo buy milk /notes use | voucher",
+                "Task notes cannot contain '|', newlines, or carriage returns.");
     }
 
     @Test

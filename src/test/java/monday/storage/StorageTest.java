@@ -59,19 +59,20 @@ class StorageTest {
     @Test
     void saveTask_withTasks_writesExpectedFileFormat() throws IOException, MondayException {
         TaskList tasks = new TaskList();
-        tasks.add(new Todo("buy milk"));
-        tasks.add(new Deadline("submit report", true, LocalDate.of(2026, 8, 30), LocalTime.of(14, 30)));
+        tasks.add(new Todo("buy milk", "Use the voucher"));
+        tasks.add(new Deadline("submit report", true, LocalDate.of(2026, 8, 30), LocalTime.of(14, 30),
+                "Attach the appendix"));
         tasks.add(new Deadline("renew passport", false, LocalDate.of(2026, 9, 1), null));
         tasks.add(new Event("team retreat", true, LocalDate.of(2026, 9, 10), LocalTime.of(9, 0),
-                LocalDate.of(2026, 9, 11), null));
+                LocalDate.of(2026, 9, 11), null, "Bring a jacket"));
 
         Storage.saveTask(tasks);
 
         assertEquals(List.of(
-                "T | 0 | buy milk",
-                "D | 1 | submit report | 2026-08-30 | 1430",
+                "T | 0 | buy milk | Use the voucher",
+                "D | 1 | submit report | 2026-08-30 | 1430 | Attach the appendix",
                 "D | 0 | renew passport | 2026-09-01 | ",
-                "E | 1 | team retreat | 2026-09-10 | 0900 | 2026-09-11 | "
+                "E | 1 | team retreat | 2026-09-10 | 0900 | 2026-09-11 |  | Bring a jacket"
         ), Files.readAllLines(DATA_FILE));
     }
 
@@ -79,12 +80,12 @@ class StorageTest {
     void loadTask_withSavedTaskTypes_recreatesTasksWithCorrectDetails() throws IOException {
         Files.createDirectories(DATA_FILE.getParent());
         Files.write(DATA_FILE, List.of(
-                "T | 0 | buy milk",
+                "T | 0 | buy milk | Use the voucher",
                 "",
                 "D | 1 | submit report | 2026-08-30 | 1430",
                 "D | 0 | renew passport | 2026-09-01 | ",
                 "E | 1 | team retreat | 2026-09-10 | 0900 | 2026-09-11 | ",
-                "E | 0 | workshop | 2026-10-01 |  | 2026-10-01 | 1800"
+                "E | 0 | workshop | 2026-10-01 |  | 2026-10-01 | 1800 | Prepare slides"
         ));
 
         ArrayList<Task> loadedTasks = Storage.loadTask();
@@ -93,10 +94,12 @@ class StorageTest {
 
         Todo todo = assertInstanceOf(Todo.class, loadedTasks.get(0));
         assertEquals("buy milk", todo.getDescription());
+        assertEquals("Use the voucher", todo.getNotes());
         assertFalse(todo.isDone());
 
         Deadline deadlineWithTime = assertInstanceOf(Deadline.class, loadedTasks.get(1));
         assertEquals("submit report", deadlineWithTime.getDescription());
+        assertEquals("", deadlineWithTime.getNotes());
         assertTrue(deadlineWithTime.isDone());
         assertEquals(LocalDate.of(2026, 8, 30), deadlineWithTime.getDeadlineDate());
         assertEquals(LocalTime.of(14, 30), deadlineWithTime.getDeadlineTime());
@@ -117,6 +120,7 @@ class StorageTest {
 
         Event eventWithStartTimeOmitted = assertInstanceOf(Event.class, loadedTasks.get(4));
         assertEquals("workshop", eventWithStartTimeOmitted.getDescription());
+        assertEquals("Prepare slides", eventWithStartTimeOmitted.getNotes());
         assertFalse(eventWithStartTimeOmitted.isDone());
         assertEquals(LocalDate.of(2026, 10, 1), eventWithStartTimeOmitted.getStartDate());
         assertNull(eventWithStartTimeOmitted.getStartTime());

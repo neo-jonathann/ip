@@ -16,16 +16,29 @@ public class Deadline extends Task {
      * Creates an incomplete deadline task with the given details.
      */
     public Deadline(String description, LocalDate deadlineDate, LocalTime deadlineTime) {
-        super(description);
-        this.deadlineDate = deadlineDate;
-        this.deadlineTime = deadlineTime;
+        this(description, false, deadlineDate, deadlineTime, "");
+    }
+
+    /**
+     * Creates an incomplete deadline task with the given details and notes.
+     */
+    public Deadline(String description, LocalDate deadlineDate, LocalTime deadlineTime, String notes) {
+        this(description, false, deadlineDate, deadlineTime, notes);
     }
 
     /**
      * Creates a deadline task with the given details and completion status.
      */
     public Deadline(String description, boolean isDone, LocalDate deadlineDate, LocalTime deadlineTime) {
-        super(description, isDone);
+        this(description, isDone, deadlineDate, deadlineTime, "");
+    }
+
+    /**
+     * Creates a deadline task with the given details, completion status, and notes.
+     */
+    public Deadline(String description, boolean isDone, LocalDate deadlineDate, LocalTime deadlineTime,
+            String notes) {
+        super(description, isDone, notes);
         this.deadlineDate = deadlineDate;
         this.deadlineTime = deadlineTime;
     }
@@ -46,6 +59,6 @@ public class Deadline extends Task {
             deadline += " " + deadlineTime.format(DateTimeFormat.DISPLAY_TIME.getFormatter());
         }
 
-        return "[D]" + super.toString() + " (by: " + deadline + ")";
+        return "[D]" + formatTask() + " (by: " + deadline + ")" + formatNotes();
     }
 }
